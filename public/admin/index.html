@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Page</title>
+  <style>
+  body {
+    font-family: sans-serif;
+    max-width: 900px;
+    margin: 30px;
+  }
+  img {
+    max-width: 100px;
+  }
+  li {
+    margin-bottom: 0.2em;
+  }
+  .account {
+  }
+  input {
+    width: 300px;
+    font-size: 1.2em;
+  }
+  .hint {
+    font-size: 0.8em;
+  }
+  button {
+    font-size: 1.2em;
+  }
+  </style>
+</head>
+<body>
+<h1>Admin Page</h1>  
+<h2>Create Account</h2>
+<p>Create a new ActivityPub Actor (account). Requires the admin user/pass on submit.</p>
+<p>
+<input id="account" type="text" placeholder="myAccountName"/>
+</p>
+<button onclick="createAccount()">Create Account</button>
+<p id="createOutput"></p>
+<h2>Send Message To Followers</h2>
+<p>Enter an account name, its API key, and a message. This message will send to all its followers.</p>
+<p>
+<input id="acct" type="text" placeholder="myAccountName"/>
+</p>
+<p>
+<input id="apikey" type="text" placeholder="1234567890abcdef"/><br><span class="hint">a long hex key you got when you created your account</span>
+</p>
+<p>
+<input id="message" type="text" placeholder="Hello there."/><br>
+</p>
+<button onclick="sendMessage()">Send Message</button>
+<p id="sendOutput"></p>
+  
+<script>
+function queryStringFromObject(obj) {
+  return Object.keys(obj).map(key => key + '=' + obj[key]).join('&');
+}
+
+function sendMessage() {
+  let acct = document.querySelector('#acct').value;
+  let apikey = document.querySelector('#apikey').value;
+  let message = document.querySelector('#message').value;
+
+  postData('/api/sendMessage', {acct, apikey, message})
+    .then(data => {
+      console.log(data);
+      if (data.msg && data.msg === 'ok') {
+        let outputElement = document.querySelector('#sendOutput');
+        outputElement.innerHTML = 'Message sent successfully!';
+      }
+    }) // JSON-string from `response.json()` call
+    .catch(error => console.error(error));
+}
+
+function createAccount() {
+  let account = document.querySelector('#account').value;
+
+  postData('/api/admin/create', {account})
+    .then(data => {
+      console.log('data', data);
+      if (data.msg && data.msg === 'ok') {
+        let outputElement = document.querySelector('#createOutput');
+        outputElement.innerHTML = `Account created successfully! To confirm, go to <a href="/u/${account}">this URL</a>, you should see JSON for the new account Actor. Next verify that there is some JSON being served from <a href="/.well-known/webfinger?resource=acct:${account}@${window.location.hostname}">at the account's webfinger URL</a>. Then try to find ${account}@${window.location.hostname} from the search in Mastodon or another ActivityPub client. You should be able to follow the account. <br><br>Your API key for sending messages is ${data.apikey} &mdash; please save this somewhere!`;
+      }
+    }) // JSON-string from `response.json()` call
+    .catch(error => console.error(error));
+}
+
+function postData(url = ``, data = {}) {
+  // Default options are marked with *
+    return fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, cors, *same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, same-origin, *omit
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        redirect: "follow", // manual, *follow, error
+        referrer: "no-referrer", // no-referrer, *client
+        body: queryStringFromObject(data), // body data type must match "Content-Type" header
+    })
+    .then(response => response.json()); // parses response to JSON
+}
+</script>
+</body>
+</html>

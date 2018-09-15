@@ -1,0 +1,24 @@
+{
+  "name": "bot-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "express-basic-auth": "^1.1.5",
+    "generate-rsa-keypair": "^0.1.2",
+    "request": "^2.87.0",
+    "sqlite3": "^4.0.2"
+  },
+  "engines": {
+    "node": ">=10.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
