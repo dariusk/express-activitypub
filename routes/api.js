@@ -63,18 +63,19 @@ function signAndSend(message, name, domain, req, res, targetDomain, inbox) {
 }
 
 function createMessage(text, name, domain) {
-  const guid = crypto.randomBytes(16).toString('hex');
+  const guidCreate = crypto.randomBytes(16).toString('hex');
+  const guidNote = crypto.randomBytes(16).toString('hex');
   let d = new Date();
 
   return {
     '@context': 'https://www.w3.org/ns/activitystreams',
 
-    'id': `https://${domain}/${guid}`,
+    'id': `https://${domain}/${guidCreate}`,
     'type': 'Create',
     'actor': `https://${domain}/u/${name}`,
 
     'object': {
-      'id': `https://${domain}/${guid}`,
+      'id': `https://${domain}/${guidNote}`,
       'type': 'Note',
       'published': d.toISOString(),
       'attributedTo': `https://${domain}/u/${name}`,
