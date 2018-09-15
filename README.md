@@ -94,6 +94,5 @@ This table keeps track of all the data needed for the accounts. Columns:
 
 ## License
 
-Copyright (c) 2018 Darius Kazemi
-Licensed under the MIT license.
+Copyright (c) 2018 Darius Kazemi. Licensed under the MIT license.
 
