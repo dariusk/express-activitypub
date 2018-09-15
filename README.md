@@ -72,7 +72,8 @@ Send a message to followers. This is NOT a direct message or an @-mention. This 
 Send a POST to `api/sendMessage` with the form fields `acct`, `apikey`, and `message`.
 
 * `acct`: the account name in the form "myAccountName" (no domain or @'s needed)
-* `apikey`: your hex API
+* `apikey`: your hex API key
+* `message`: the message you want to send -- for Mastodon-compatible posts this might be plain text or simple HTML, but ActivityPub is a lot more flexible than just Mastodon! In theory, according to the [ActivityPub spec](https://www.w3.org/TR/activitypub/#create-activity-outbox) it can be any [ActivityStreams object](https://www.w3.org/TR/activitystreams-core/#object)
 
 ## Database
 
