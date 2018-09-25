@@ -6,6 +6,7 @@ const express = require('express'),
 
 router.post('/sendMessage', function (req, res) {
   let db = req.app.get('db');
+  console.log('DB',db);
   let domain = req.app.get('domain');
   let acct = req.body.acct;
   let apikey = req.body.apikey;
@@ -62,31 +63,47 @@ function signAndSend(message, name, domain, req, res, targetDomain, inbox) {
   });
 }
 
-function createMessage(text, name, domain) {
+function createMessage(text, name, domain, req, res) {
   const guidCreate = crypto.randomBytes(16).toString('hex');
   const guidNote = crypto.randomBytes(16).toString('hex');
+  let db = req.app.get('db');
   let d = new Date();
 
-  return {
+  let noteMessage = {
+    'id': `https://${domain}/m/${guidNote}`,
+    'type': 'Note',
+    'published': d.toISOString(),
+    'attributedTo': `https://${domain}/u/${name}`,
+    'content': text,
+    'to': 'https://www.w3.org/ns/activitystreams#Public'
+  };
+
+  let createMessage = {
     '@context': 'https://www.w3.org/ns/activitystreams',
 
-    'id': `https://${domain}/${guidCreate}`,
+    'id': `https://${domain}/m/${guidCreate}`,
     'type': 'Create',
     'actor': `https://${domain}/u/${name}`,
 
-    'object': {
-      'id': `https://${domain}/${guidNote}`,
-      'type': 'Note',
-      'published': d.toISOString(),
-      'attributedTo': `https://${domain}/u/${name}`,
-      'content': text,
-      'to': 'https://www.w3.org/ns/activitystreams#Public'
-    }
+    'object': noteMessage
   };
+
+  db.run('insert or replace into messages(guid, message) values($guid, $message)', {
+    $guid: guidCreate,
+    $message: JSON.stringify(createMessage),
+  }, (err, accounts) => {
+  });
+  db.run('insert or replace into messages(guid, message) values($guid, $message)', {
+    $guid: guidNote,
+    $message: JSON.stringify(noteMessage),
+  }, (err, accounts) => {
+  });
+
+  return createMessage;
 }
 
 function sendCreateMessage(text, name, domain, req, res) {
-  let message = createMessage(text, name, domain);
+  let message = createMessage(text, name, domain, req, res);
   let db = req.app.get('db');
 
   db.get('select followers from accounts where name = $name', {$name: `${name}@${domain}`}, (err, result) => {
