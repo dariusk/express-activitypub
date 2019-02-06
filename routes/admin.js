@@ -1,8 +1,7 @@
 'use strict';
 const express = require('express'),
       router = express.Router(),
-      crypto = require('crypto'),
-      generateRSAKeypair = require('generate-rsa-keypair');
+      crypto = require('crypto');
 
 function createActor(name, domain, pubkey) {
   return {
@@ -48,17 +47,27 @@ router.post('/create', function (req, res) {
   let db = req.app.get('db');
   let domain = req.app.get('domain');
   // create keypair
-  var pair = generateRSAKeypair();
-  let actorRecord = createActor(account, domain, pair.public);
-  let webfingerRecord = createWebfinger(account, domain);
-  const apikey = crypto.randomBytes(16).toString('hex');
-  try {
-    db.prepare('insert or replace into accounts(name, actor, apikey, pubkey, privkey, webfinger) values(?, ?, ?, ?, ?, ?)').run(`${account}@${domain}`, JSON.stringify(actorRecord), apikey, pair.public, pair.private, JSON.stringify(webfingerRecord));
-    res.status(200).json({msg: 'ok', apikey});
-  }
-  catch(e) {
-    res.status(200).json({error: e});
-  }
+  crypto.generateKeyPair('rsa', {
+    modulusLength: 4096,
+    publicKeyEncoding: {
+      type: 'spki',
+      format: 'pem'
+    },
+    privateKeyEncoding: {
+      type: 'pkcs8',
+      format: 'pem'
+    }
+  }, (err, publicKey, privateKey) => {
+    let actorRecord = createActor(account, domain, publicKey);
+    let webfingerRecord = createWebfinger(account, domain);
+    const apikey = crypto.randomBytes(16).toString('hex');
+    try {
+      db.prepare('insert or replace into accounts(name, actor, apikey, pubkey, privkey, webfinger) values(?, ?, ?, ?, ?, ?)').run(`${account}@${domain}`, JSON.stringify(actorRecord), apikey, publicKey, privateKey, JSON.stringify(webfingerRecord));
+      res.status(200).json({msg: 'ok', apikey});
+    }
+    catch(e) {
+      res.status(200).json({error: e});
+    }
 });
 
 module.exports = router;
