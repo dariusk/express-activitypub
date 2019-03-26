@@ -96,6 +96,13 @@ This table keeps track of all the data needed for the accounts. Columns:
 * `followers` `TEXT`: a JSON-formatted array of the URL for the Actor JSON of all followers, in the form `["https://remote.server/users/somePerson", "https://another.remote.server/ourUsers/anotherPerson"]`
 * `messages` `TEXT`: not yet used but will eventually store all messages so we can render them on a "profile" page
 
+### `messages`
+
+This table holds all messages sent by the server, which are served at the url `/m/some-id-number/`.
+
+* `guid` `TEXT PRIMARY KEY`: an id for the message
+* `message` `TEXT`: a JSON object encoding the full message
+
 ## License
 
 Copyright (c) 2018 Darius Kazemi. Licensed under the MIT license.
