@@ -9,14 +9,13 @@ router.get('/:guid', function (req, res) {
   }
   else {
     let db = req.app.get('db');
-    db.get('select message from messages where guid = $guid', {$guid: guid}, (err, result) => {
-      if (result === undefined) {
-        return res.status(404).send(`No record found for ${guid}.`);
-      }
-      else {
-        res.json(JSON.parse(result.message));
-      }
-    });
+    let result = db.prepare('select message from messages where guid = ?').get(guid);
+    if (result === undefined) {
+      return res.status(404).send(`No record found for ${guid}.`);
+    }
+    else {
+      res.json(JSON.parse(result.message));
+    }
   }
 });
 

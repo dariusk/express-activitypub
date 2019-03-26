@@ -60,7 +60,7 @@ function signAndSend(message, name, domain, req, res, targetDomain, inbox) {
   }
 }
 
-function createMessage(text, name, domain, req, res) {
+function createMessage(text, name, domain, req, res, follower) {
   const guidCreate = crypto.randomBytes(16).toString('hex');
   const guidNote = crypto.randomBytes(16).toString('hex');
   let db = req.app.get('db');
@@ -72,7 +72,7 @@ function createMessage(text, name, domain, req, res) {
     'published': d.toISOString(),
     'attributedTo': `https://${domain}/u/${name}`,
     'content': text,
-    'to': 'https://www.w3.org/ns/activitystreams#Public'
+    'to': ['https://www.w3.org/ns/activitystreams#Public'],
   };
 
   let createMessage = {
@@ -81,6 +81,8 @@ function createMessage(text, name, domain, req, res) {
     'id': `https://${domain}/m/${guidCreate}`,
     'type': 'Create',
     'actor': `https://${domain}/u/${name}`,
+    'to': ['https://www.w3.org/ns/activitystreams#Public'],
+    'cc': [follower],
 
     'object': noteMessage
   };
@@ -92,7 +94,6 @@ function createMessage(text, name, domain, req, res) {
 }
 
 function sendCreateMessage(text, name, domain, req, res) {
-  let message = createMessage(text, name, domain, req, res);
   let db = req.app.get('db');
 
   let result = db.prepare('select followers from accounts where name = ?').get(`${name}@${domain}`);
@@ -108,6 +109,7 @@ function sendCreateMessage(text, name, domain, req, res) {
       let inbox = follower+'/inbox';
       let myURL = new URL(follower);
       let targetDomain = myURL.hostname;
+      let message = createMessage(text, name, domain, req, res, follower);
       signAndSend(message, name, domain, req, res, targetDomain, inbox);
     }
     res.status(200).json({msg: 'ok'});

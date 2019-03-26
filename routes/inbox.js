@@ -10,7 +10,7 @@ function signAndSend(message, name, domain, req, res, targetDomain) {
   let inboxFragment = inbox.replace('https://'+targetDomain,'');
   // get the private key
   let db = req.app.get('db');
-  let result = db.prepare('select privkey from accounts where name = ?').get(name);
+  let result = db.prepare('select privkey from accounts where name = ?').get(`${name}@${domain}`);
   if (result === undefined) {
     return res.status(404).send(`No record found for ${name}.`);
   }
