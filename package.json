@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "better-sqlite3": "^5.4.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "express-basic-auth": "^1.1.5",
     "generate-rsa-keypair": "^0.1.2",
-    "request": "^2.87.0",
-    "sqlite3": "^4.0.2"
+    "request": "^2.87.0"
   },
   "engines": {
     "node": ">=10.10.0"

@@ -20,6 +20,10 @@ Clone the repository, then `cd` into its root directory. Install dependencies:
 
 `npm i`
 
+Copy `config-template.json` to `config.json`.
+
+`cp config-template.json config.json`
+
 Update your `config.json` file:
 
 ```js
@@ -45,7 +49,7 @@ Enter "test" in the "Create Account" section and hit the "Create Account" button
 
 ## Local testing
 
-You can use a service like [ngrok](https://ngrok.com/) to test things out before you deploy on a real server. All you need to do is install ngrok and run `ngrok http 3000` (or whatever port you're using if you changed it). Then go to your `config.json` and update the `DOMAIN` field to whatever `abcdef.ngrok.io` domain that ngrok gives you and restart your server.
+You can use a service like [ngrok](https://ngrok.com/) to test things out before you deploy on a real server. All you need to do is install ngrok and run `ngrok http 3000` (or whatever port you're using if you changed it). Then go to your `config.json` and update the `DOMAIN` field to whatever `abcdef.ngrok.io` domain that ngrok gives you and restart your server. *For local testing you do not need to specify `PRIVKEY_PATH` or `CERT_PARTH`.*
 
 ## Admin Page
 

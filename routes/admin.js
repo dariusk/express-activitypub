@@ -15,6 +15,7 @@ function createActor(name, domain, pubkey) {
     'type': 'Person',
     'preferredUsername': `${name}`,
     'inbox': `https://${domain}/api/inbox`,
+    'followers': `https://${domain}/u/${name}/followers`,
 
     'publicKey': {
       'id': `https://${domain}/u/${name}#main-key`,
@@ -51,16 +52,13 @@ router.post('/create', function (req, res) {
   let actorRecord = createActor(account, domain, pair.public);
   let webfingerRecord = createWebfinger(account, domain);
   const apikey = crypto.randomBytes(16).toString('hex');
-  db.run('insert or replace into accounts(name, actor, apikey, pubkey, privkey, webfinger) values($name, $actor, $apikey, $pubkey, $privkey, $webfinger)', {
-    $name: `${account}@${domain}`,
-    $apikey: apikey,
-    $pubkey: pair.public,
-    $privkey: pair.private,
-    $actor: JSON.stringify(actorRecord),
-    $webfinger: JSON.stringify(webfingerRecord)
-  }, (err, accounts) => {
+  try {
+    db.prepare('insert or replace into accounts(name, actor, apikey, pubkey, privkey, webfinger) values(?, ?, ?, ?, ?, ?)').run(`${account}@${domain}`, JSON.stringify(actorRecord), apikey, pair.public, pair.private, JSON.stringify(webfingerRecord));
     res.status(200).json({msg: 'ok', apikey});
-  });
+  }
+  catch(e) {
+    res.status(200).json({error: e});
+  }
 });
 
 module.exports = router;
