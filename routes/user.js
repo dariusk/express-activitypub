@@ -12,20 +12,19 @@ router.get('/:name', function (req, res) {
     let domain = req.app.get('domain');
     let username = name;
     name = `${name}@${domain}`;
-    db.get('select actor from accounts where name = $name', {$name: name}, (err, result) => {
-      if (result === undefined) {
-        return res.status(404).send(`No record found for ${name}.`);
+    let result = db.prepare('select actor from accounts where name = ?').get(name);
+    if (result === undefined) {
+      return res.status(404).send(`No record found for ${name}.`);
+    }
+    else {
+      let tempActor = JSON.parse(result.actor);
+      // Added this followers URI for Pleroma compatibility, see https://github.com/dariusk/rss-to-activitypub/issues/11#issuecomment-471390881
+      // New Actors should have this followers URI but in case of migration from an old version this will add it in on the fly
+      if (tempActor.followers === undefined) {
+        tempActor.followers = `https://${domain}/u/${username}/followers`;
       }
-      else {
-				let tempActor = JSON.parse(result.actor);
-				// Added this followers URI for Pleroma compatibility, see https://github.com/dariusk/rss-to-activitypub/issues/11#issuecomment-471390881
-				// New Actors should have this followers URI but in case of migration from an old version this will add it in on the fly
-				if (tempActor.followers === undefined) {
-					tempActor.followers = `https://${domain}/u/${username}/followers`;
-				}
-				res.json(tempActor);
-      }
-    });
+      res.json(tempActor);
+    }
   }
 });
 
@@ -38,10 +37,9 @@ router.get('/:name/followers', function (req, res) {
     let db = req.app.get('db');
     let domain = req.app.get('domain');
     let result = db.prepare('select followers from accounts where name = ?').get(`${name}@${domain}`);
+    console.log(result);
+    result.followers = result.followers || '[]';
     let followers = JSON.parse(result.followers);
-    if (!followers) {
-      followers = [];
-    }
     let followersCollection = {
       "type":"OrderedCollection",
       "totalItems":followers.length,
