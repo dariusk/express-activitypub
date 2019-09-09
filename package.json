@@ -9,7 +9,6 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "express-basic-auth": "^1.1.5",
-    "generate-rsa-keypair": "^0.1.2",
     "request": "^2.87.0"
   },
   "engines": {
@@ -17,6 +16,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

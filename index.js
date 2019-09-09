@@ -9,6 +9,7 @@ const routes = require('./routes'),
       bodyParser = require('body-parser'),
       cors = require('cors'),
       http = require('http'),
+      https = require('https'),
       basicAuth = require('express-basic-auth');
 let sslOptions;
 
@@ -73,3 +74,8 @@ app.use('/api/inbox', cors(), routes.inbox);
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+if (sslOptions) {
+  https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
+    console.log('Express server listening on port ' + app.get('port-https'));
+  });
+}
