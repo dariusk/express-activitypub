@@ -1,9 +1,21 @@
+const { promisify } = require('util')
 const config = require('./config.json');
 const { USER, PASS, DOMAIN, PRIVKEY_PATH, CERT_PATH, PORT } = config;
 const express = require('express');
 const app = express();
-const Database = require('better-sqlite3');
-const db = new Database('bot-node.db');
+const MongoClient = require('mongodb').MongoClient;
+// Connection URL
+const url = 'mongodb://localhost:27017';
+
+const dbSetup = require('./db/setup');
+// Database Name
+const dbName = 'test';
+
+// Create a new MongoClient
+const client = new MongoClient(url, {useUnifiedTopology: true});
+
+let db;
+
 const fs = require('fs');
 const routes = require('./routes'),
       bodyParser = require('body-parser'),
@@ -27,16 +39,13 @@ try {
   }
 }
 
-// if there is no `accounts` table in the DB, create an empty table
-db.prepare('CREATE TABLE IF NOT EXISTS accounts (name TEXT PRIMARY KEY, privkey TEXT, pubkey TEXT, webfinger TEXT, actor TEXT, apikey TEXT, followers TEXT, messages TEXT)').run();
-// if there is no `messages` table in the DB, create an empty table
-db.prepare('CREATE TABLE IF NOT EXISTS messages (guid TEXT PRIMARY KEY, message TEXT)').run();
-
-app.set('db', db);
 app.set('domain', DOMAIN);
 app.set('port', process.env.PORT || PORT || 3000);
 app.set('port-https', process.env.PORT_HTTPS || 8443);
-app.use(bodyParser.json({type: 'application/activity+json'})); // support json encoded bodies
+app.use(bodyParser.json({type: [
+  'application/activity+json',
+  'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+]})); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 // basic http authorizer
@@ -59,24 +68,49 @@ function asyncAuthorizer(username, password, cb) {
   }
 }
 
+app.param('name', function (req, res, next, id) {
+  req.user = id
+  next()
+})
+
 app.get('/', (req, res) => res.send('Hello World!'));
 
 // admin page
 app.options('/api', cors());
 app.use('/api', cors(), routes.api);
 app.use('/api/admin', cors({ credentials: true, origin: true }), basicUserAuth, routes.admin);
-app.use('/admin', express.static('public/admin'));
 app.use('/.well-known/webfinger', cors(), routes.webfinger);
 app.use('/u', cors(), routes.user);
 app.use('/m', cors(), routes.message);
-app.use('/api/inbox', cors(), routes.inbox);
+// app.use('/api/inbox', cors(), routes.inbox);
+app.use('/u/:name/inbox', routes.inbox);
+app.use('/admin', express.static('public/admin'));
+app.use('/f', express.static('public/files'));
 app.use('/hubs', express.static('../hubs/dist'));
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
-if (sslOptions) {
-  https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
-    console.log('Express server listening on port ' + app.get('port-https'));
+// Use connect method to connect to the Server
+let objs
+client.connect({useNewUrlParser: true})
+  .then(() => {
+    console.log("Connected successfully to server");
+    db = client.db(dbName);
+    app.set('db', db);
+    objs = db.collection('objects');
+    app.set('objs', db.collection('objects'));
+
+    return dbSetup(db, DOMAIN)
+  })
+
+  .then(() => {
+    http.createServer(app).listen(app.get('port'), function(){
+      console.log('Express server listening on port ' + app.get('port'));
+    });
+    if (sslOptions) {
+      https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
+        console.log('Express server listening on port ' + app.get('port-https'));
+      });
+    }
+  })
+  .catch(err => {
+    throw new Error(err)
   });
-}

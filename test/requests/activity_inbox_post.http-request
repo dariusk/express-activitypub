@@ -1,0 +1,14 @@
+{
+  "body": {
+    "content": "ew0KICAiQGNvbnRleHQiOiAiaHR0cHM6Ly93d3cudzMub3JnL25zL2FjdGl2aXR5c3RyZWFtcyIsDQogICJ0eXBlIjogIkNyZWF0ZSIsDQogICJpZCI6ICJodHRwczovL2V4YW1wbGUubmV0L35tYWxsb3J5Lzg3Mzc0IiwNCiAgImFjdG9yIjogImh0dHBzOi8vZXhhbXBsZS5uZXQvfm1hbGxvcnkiLA0KICAib2JqZWN0Ijogew0KICAgICJpZCI6ICJodHRwczovL2V4YW1wbGUuY29tL35tYWxsb3J5L25vdGUvNzIiLA0KICAgICJ0eXBlIjogIk5vdGUiLA0KICAgICJhdHRyaWJ1dGVkVG8iOiAiaHR0cHM6Ly9leGFtcGxlLm5ldC9+bWFsbG9yeSIsDQogICAgImNvbnRlbnQiOiAiVGhpcyBpcyBhIG5vdGUiLA0KICAgICJwdWJsaXNoZWQiOiAiMjAxNS0wMi0xMFQxNTowNDo1NVoiLA0KICAgICJ0byI6IFsiaHR0cHM6Ly9leGFtcGxlLm9yZy9+am9obi8iXSwNCiAgICAiY2MiOiBbImh0dHBzOi8vZXhhbXBsZS5jb20vfmVyaWsvZm9sbG93ZXJzIiwNCiAgICAgICAgICAgImh0dHBzOi8vd3d3LnczLm9yZy9ucy9hY3Rpdml0eXN0cmVhbXMjUHVibGljIl0NCiAgfSwNCiAgInB1Ymxpc2hlZCI6ICIyMDE1LTAyLTEwVDE1OjA0OjU1WiIsDQogICJ0byI6IFsiaHR0cHM6Ly9leGFtcGxlLm9yZy9+am9obi8iXSwNCiAgImNjIjogWyJodHRwczovL2V4YW1wbGUuY29tL35lcmlrL2ZvbGxvd2VycyIsDQogICAgICAgICAiaHR0cHM6Ly93d3cudzMub3JnL25zL2FjdGl2aXR5c3RyZWFtcyNQdWJsaWMiXQ0KfQ==",
+    "file": "c:\\Users\\William\\Desktop\\activity.json",
+    "fileSize": 736
+  },
+  "headers": {
+    "content-length": "736",
+    "content-type": "application/activity+json"
+  },
+  "method": "POST",
+  "title": "New HTTP Request",
+  "url": "http://localhost:3000/u/dummy/inbox"
+}
