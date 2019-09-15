@@ -83,7 +83,8 @@ app.use('/.well-known/webfinger', cors(), routes.webfinger);
 app.use('/u', cors(), routes.user);
 app.use('/m', cors(), routes.message);
 // app.use('/api/inbox', cors(), routes.inbox);
-app.use('/u/:name/inbox', routes.inbox);
+app.use('/u/:name/inbox', routes.inbox)
+app.use('/u/:name/outbox', routes.outbox)
 app.use('/admin', express.static('public/admin'));
 app.use('/f', express.static('public/files'));
 app.use('/hubs', express.static('../hubs/dist'));

@@ -1,12 +1,7 @@
-const ASContext = 'https://www.w3.org/ns/activitystreams';
+const { ASContext } = require('./consts')
+module.exports.validators = require('./validators');
+const config = require('../config.json')
 
-function convertId(obj) {
-    if (obj._id) {
-        obj.id = obj._id
-        delete obj._id
-    }
-    return obj
-}
 function isObject(value) {
     return value && typeof value === 'object' && value.constructor === Object
 }
@@ -23,7 +18,7 @@ function traverseObject(obj, f) {
     return f(obj);
 }
 module.exports.toJSONLD = function (obj) {
-    obj['@context'] = ASContext;
+    obj['@context'] = obj['@context'] || ASContext;
     return obj;
 }
 
@@ -35,4 +30,8 @@ module.exports.arrayToCollection = function (arr, ordered) {
         type: ordered ? 'orderedCollection' : 'collection',
         [ordered ? 'orderedItems' : 'items']: arr,
     }
+}
+
+module.exports.userNameToIRI = function (user) {
+    return `https://${config.DOMAIN}/u/${user}`
 }
