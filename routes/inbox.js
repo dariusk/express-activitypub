@@ -20,7 +20,7 @@ router.get('/', function (req, res) {
   db.collection('streams')
     .find({_target: req.user})
     .sort({_id: -1})
-    .project({_id: 0, _target: 0, '@context': 0, 'object._id': 0, 'object.@context': 0})
+    .project({_id: 0, _target: 0, _meta: 0, '@context': 0, 'object._id': 0, 'object.@context': 0, 'objecct._meta': 0})
     .toArray()
     .then(stream => res.json(utils.arrayToCollection(stream, true)))
     .catch(err => {

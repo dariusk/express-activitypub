@@ -1,7 +1,7 @@
 'use strict';
 const express = require('express'),
       router = express.Router();
-// const inbox = require('./inbox');
+const utils = require('../utils')
 const {toJSONLD} = require('../utils/index.js');
 
 router.get('/:name', async function (req, res) {
@@ -11,10 +11,14 @@ router.get('/:name', async function (req, res) {
   }
   else {
     let objs = req.app.get('objs');
-    const id = `https://${req.app.get('domain')}/u/${name}`
+    let db = req.app.get('db')
+    const id = utils.userNameToIRI(name)
     console.log(`looking up '${id}'`)
-    const user = await objs.findOne({type: 'Person', id: id}, {fields: {_id: 0}})
-      // .project({_id: 0})
+    const user = await db.collection('objects')
+      .find({type: 'Person', id: id})
+      .limit(1)
+      .project({_id: 0, _meta: 0})
+      .next()
     if (user) {
       return res.json(toJSONLD(user))
     }

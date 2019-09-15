@@ -4,5 +4,6 @@
   "DOMAIN": "",
   "PORT": "3000",
   "PRIVKEY_PATH": "",
-  "CERT_PATH": ""
+  "CERT_PATH": "",
+  "KEYPASS": ""
 }
