@@ -13,12 +13,7 @@ router.get('/', function (req, res) {
     return res.status(400).send('Requested user is not from this domain')
   }
   let db = req.app.get('db');
-  const userId = utils.userNameToIRI(acct[1]);
-  db.collection('objects')
-    .find({id: userId})
-    .limit(1)
-    .project({_id: 0})
-    .next()
+  utils.getOrCreateActor(acct[1], db)
     .then(result => {
       if (!result) {
         return res.status(404).send(`${acct[1]}@${acct[2]} not found`)
@@ -29,7 +24,7 @@ router.get('/', function (req, res) {
           {
             'rel': 'self',
             'type': 'application/activity+json',
-            'href': userId
+            'href': result.id
           }
         ]
       }

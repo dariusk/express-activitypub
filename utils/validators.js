@@ -28,7 +28,7 @@ module.exports.outboxActivity = function outboxActivity (req, res, next) {
         if (!validateObject(req.body)) {
             return res.status(400).send('Invalid activity')
         }
-        const newID = ObjectId()
+        const newID = new ObjectId()
         req.body = {
             _id: newID,
             '@context': ASContext,

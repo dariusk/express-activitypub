@@ -1,8 +1,9 @@
 const crypto = require('crypto')
 const {promisify} = require('util')
 const {ASContext} = require('./consts')
-module.exports.validators = require('./validators');
 const config = require('../config.json')
+
+module.exports.validators = require('./validators');
 
 function isObject(value) {
     return value && typeof value === 'object' && value.constructor === Object
@@ -34,13 +35,13 @@ module.exports.arrayToCollection = function (arr, ordered) {
     }
 }
 
-function userNameToIRI (user) {
+function usernameToIRI (user) {
     return `https://${config.DOMAIN}/u/${user}`
 }
-module.exports.userNameToIRI = userNameToIRI
+module.exports.usernameToIRI = usernameToIRI
 
 const generateKeyPairPromise = promisify(crypto.generateKeyPair)
-module.exports.createLocalActor = function (name, type) {
+function createLocalActor (name, type) {
     return generateKeyPairPromise('rsa', {
         modulusLength: 4096,
         publicKeyEncoding: {
@@ -54,7 +55,7 @@ module.exports.createLocalActor = function (name, type) {
             passphrase: config.KEYPASS
         }
     }).then(pair => {
-        const actorBase = userNameToIRI(name);
+        const actorBase = usernameToIRI(name);
         return {
             _meta: {
                 privateKey: pair.privateKey,
@@ -81,3 +82,35 @@ module.exports.createLocalActor = function (name, type) {
         }
     })
 }
+module.exports.createLocalActor = createLocalActor
+
+async function getOrCreateActor(preferredUsername, db) {
+    const id = usernameToIRI(preferredUsername)
+    let user = await db.collection('objects')
+    .find({id: id})
+    .limit(1)
+    .project({_id: 0, _meta: 0})
+    .next()
+    if (user) {
+        return user
+    }
+    // auto create groups whenever an unknown actor is referenced
+    user = await createLocalActor(preferredUsername, 'Group')
+    await db.collection('objects').insertOne(user)
+    // only executed on success
+    delete user._meta
+    delete user._id
+    return user
+}
+module.exports.getOrCreateActor = getOrCreateActor
+
+function actorFromActivity (activity) {
+    if (Object.prototype.toString.call(activity.actor) === '[object String]') {
+        return activity.actor
+      }
+      if (activity.actor.type === 'Link') {
+        return activity.actor.href
+      }
+      return activity.actor.id
+}
+module.exports.actorFromActivity = actorFromActivity
