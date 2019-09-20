@@ -1,9 +1,19 @@
 const { promisify } = require('util')
-const config = require('./config.json');
-const { USER, PASS, DOMAIN, PRIVKEY_PATH, CERT_PATH, PORT } = config;
+const path = require('path')
 const express = require('express');
-const app = express();
 const MongoClient = require('mongodb').MongoClient;
+const fs = require('fs');
+const routes = require('./routes')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const http = require('http')
+const https = require('https')
+const basicAuth = require('express-basic-auth');
+
+const config = require('./config.json');
+const { USER, PASS, DOMAIN, KEY_PATH, CERT_PATH, PORT, PORT_HTTPS } = config;
+
+const app = express();
 // Connection URL
 const url = 'mongodb://localhost:27017';
 
@@ -16,32 +26,18 @@ const client = new MongoClient(url, {useUnifiedTopology: true});
 
 let db;
 
-const fs = require('fs');
-const routes = require('./routes'),
-      bodyParser = require('body-parser'),
-      cors = require('cors'),
-      http = require('http'),
-      https = require('https'),
-      basicAuth = require('express-basic-auth');
+
 let sslOptions;
 
-try {
   sslOptions = {
-    key: fs.readFileSync(PRIVKEY_PATH),
-    cert: fs.readFileSync(CERT_PATH)
+    key: fs.readFileSync(path.join(__dirname, KEY_PATH)),
+    cert: fs.readFileSync(path.join(__dirname, CERT_PATH))
   };
-} catch(err) {
-  if (err.errno === -2) {
-    console.log('No SSL key and/or cert found, not enabling https server');
-  }
-  else {
-    console.log(err);
-  }
-}
+
 
 app.set('domain', DOMAIN);
-app.set('port', process.env.PORT || PORT || 3000);
-app.set('port-https', process.env.PORT_HTTPS || 8443);
+app.set('port', process.env.PORT || PORT);
+app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS);
 app.use(bodyParser.json({type: [
   'application/activity+json',
   'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
@@ -82,35 +78,24 @@ app.use('/api/admin', cors({ credentials: true, origin: true }), basicUserAuth, 
 app.use('/.well-known/webfinger', cors(), routes.webfinger);
 app.use('/u', cors(), routes.user);
 app.use('/m', cors(), routes.message);
-// app.use('/api/inbox', cors(), routes.inbox);
 app.use('/u/:name/inbox', routes.inbox)
 app.use('/u/:name/outbox', routes.outbox)
 app.use('/admin', express.static('public/admin'));
 app.use('/f', express.static('public/files'));
-app.use('/hubs', express.static('../hubs/dist'));
+// app.use('/hubs', express.static('../hubs/dist'));
 
 // Use connect method to connect to the Server
-let objs
 client.connect({useNewUrlParser: true})
   .then(() => {
     console.log("Connected successfully to server");
     db = client.db(dbName);
     app.set('db', db);
-    objs = db.collection('objects');
-    app.set('objs', db.collection('objects'));
-
     return dbSetup(db, DOMAIN)
   })
-
   .then(() => {
-    http.createServer(app).listen(app.get('port'), function(){
-      console.log('Express server listening on port ' + app.get('port'));
+    https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
+      console.log('Express server listening on port ' + app.get('port-https'));
     });
-    if (sslOptions) {
-      https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
-        console.log('Express server listening on port ' + app.get('port-https'));
-      });
-    }
   })
   .catch(err => {
     throw new Error(err)

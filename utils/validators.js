@@ -33,7 +33,7 @@ module.exports.outboxActivity = function outboxActivity (req, res, next) {
             _id: newID,
             '@context': ASContext,
             type: 'Create',
-            id: `http://${req.app.get('domain')}/o/${newID.toHexString()}`,
+            id: `https://${req.app.get('domain')}/o/${newID.toHexString()}`,
             actor: req.body.attributedTo,
             object: req.body,
             published: new Date().toISOString(),

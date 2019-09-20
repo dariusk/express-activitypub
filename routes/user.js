@@ -28,8 +28,7 @@ router.get('/:name/followers', function (req, res) {
   db.collection('streams')
     .find({
       type: 'Follow',
-      _target: name,
-      'object.id': utils.usernameToIRI(name)
+      '_meta._target': utils.usernameToIRI(name),
     })
     .project({_id: 0, actor: 1})
     .toArray()

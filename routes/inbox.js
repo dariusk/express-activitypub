@@ -18,9 +18,9 @@ router.post('/', utils.validators.activity, function (req, res) {
 router.get('/', function (req, res) {
   const db = req.app.get('db');
   db.collection('streams')
-    .find({_target: req.user})
+    .find({'_meta._target': utils.usernameToIRI(req.user)})
     .sort({_id: -1})
-    .project({_id: 0, _target: 0, _meta: 0, '@context': 0, 'object._id': 0, 'object.@context': 0, 'objecct._meta': 0})
+    .project({_id: 0, _meta: 0, '@context': 0, 'object._id': 0, 'object.@context': 0, 'object._meta': 0})
     .toArray()
     .then(stream => res.json(utils.arrayToCollection(stream, true)))
     .catch(err => {

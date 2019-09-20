@@ -70,10 +70,7 @@ function createLocalActor (name, type) {
             "preferredUsername": name,
             "name": "Dummy Person",
             "summary": "Gotta have someone in the db",
-            "icon": `http://${config.DOMAIN}/f/${name}.png`,
-            attachment: [
-            `http://${config.DOMAIN}/f/${name}.glb`
-            ],
+            "icon": `https://${config.DOMAIN}/f/${name}.png`,
             publicKey: {
                 'id': `${actorBase}#main-key`,
                 'owner': `${actorBase}`,

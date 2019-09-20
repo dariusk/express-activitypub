@@ -4,8 +4,17 @@ const crypto = require('crypto')
 module.exports = async function dbSetup (db, domain) {
     // inbox
     await db.collection('streams').createIndex({
-        _target: 1,
+        '_meta._target': 1,
         _id: -1,
+    }, {
+        name: 'inbox'
+    })
+    // followers
+    await db.collection('streams').createIndex({
+        '_meta._target': 1,
+    }, {
+        partialFilterExpression: {type: 'Follow'},
+        name: 'followers'
     })
     // outbox
     await db.collection('streams').createIndex({
