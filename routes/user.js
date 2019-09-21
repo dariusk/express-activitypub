@@ -1,8 +1,9 @@
-'use strict';
-const express = require('express'),
-      router = express.Router();
+'use strict'
+const express = require('express')
+const router = express.Router()
 const utils = require('../utils')
 const pub = require('../pub')
+const store = require('../store')
 
 router.get('/:name', async function (req, res) {
   let name = req.params.name;
@@ -11,7 +12,7 @@ router.get('/:name', async function (req, res) {
   }
   else {
     let db = req.app.get('db')
-    const user = await utils.getOrCreateActor(name, db)
+    const user = await store.actor.getOrCreateActor(name, db)
     if (user) {
       return res.json(pub.utils.toJSONLD(user))
     }

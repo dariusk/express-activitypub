@@ -1,7 +1,8 @@
-'use strict';
-const express = require('express'),
-      router = express.Router();
-const utils = require('../utils')
+'use strict'
+const express = require('express')
+const router = express.Router()
+
+const store = require('../store')
 const acctReg = /acct:[@~]?([^@]+)@?(.*)/
 router.get('/', function (req, res) {
   let resource = req.query.resource;
@@ -13,7 +14,7 @@ router.get('/', function (req, res) {
     return res.status(400).send('Requested user is not from this domain')
   }
   let db = req.app.get('db');
-  utils.getOrCreateActor(acct[1], db)
+  store.actor.getOrCreateActor(acct[1], db)
     .then(result => {
       if (!result) {
         return res.status(404).send(`${acct[1]}@${acct[2]} not found`)

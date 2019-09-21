@@ -3,6 +3,7 @@ const router = express.Router()
 const utils = require('../utils')
 const pub = require('../pub')
 const net = require('../net')
+const store = require('../store')
 const request = require('request-promise-native')
 const httpSignature = require('http-signature')
 const {ObjectId} = require('mongodb')
@@ -20,7 +21,7 @@ router.post('/', net.validators.activity, function (req, res) {
       sigHead = httpSignature.parse(req, {clockSkew: 3000})
       req.url = tempUrl
       // TODO - real key lookup with remote fetch
-      utils.getOrCreateActor(sigHead.keyId.replace(/.*\//, ''), db)
+      store.actor.getActor(sigHead.keyId.replace(/.*\//, ''), db)
       .then(user => {
         const valid = httpSignature.verifySignature(sigHead, user.publicKey.publicKeyPem)
         console.log('key validation', valid)
@@ -31,7 +32,7 @@ router.post('/', net.validators.activity, function (req, res) {
       req.body._meta._target = req.body.object.id
       // send acceptance reply
       Promise.all([
-        utils.getOrCreateActor(req.user, db, true),
+        store.actor.getOrCreateActor(req.user, db, true),
         request({
           url: pub.utils.actorFromActivity(req.body),
           headers: {Accept: 'application/activity+json'},
