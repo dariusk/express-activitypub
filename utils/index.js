@@ -51,8 +51,6 @@ function createLocalActor (name, type) {
         privateKeyEncoding: {
             type: 'pkcs8',
             format: 'pem',
-            cipher: 'aes-256-cbc',
-            passphrase: config.KEYPASS
         }
     }).then(pair => {
         const actorBase = usernameToIRI(name);
@@ -80,13 +78,15 @@ function createLocalActor (name, type) {
     })
 }
 module.exports.createLocalActor = createLocalActor
-
-async function getOrCreateActor(preferredUsername, db) {
+const actorProj = {_id: 0, _meta: 0}
+const metaActorProj = {_id: 0}
+async function getOrCreateActor(preferredUsername, db, includeMeta) {
     const id = usernameToIRI(preferredUsername)
     let user = await db.collection('objects')
     .find({id: id})
     .limit(1)
-    .project({_id: 0, _meta: 0})
+    // strict comparison as we don't want to return private keys on accident
+    .project(includeMeta === true ? metaActorProj : actorProj)
     .next()
     if (user) {
         return user
@@ -95,8 +95,10 @@ async function getOrCreateActor(preferredUsername, db) {
     user = await createLocalActor(preferredUsername, 'Group')
     await db.collection('objects').insertOne(user)
     // only executed on success
-    delete user._meta
     delete user._id
+    if (includeMeta !== true) {
+        delete user._meta
+    }
     return user
 }
 module.exports.getOrCreateActor = getOrCreateActor
