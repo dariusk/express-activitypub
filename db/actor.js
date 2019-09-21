@@ -1,2 +1,5 @@
+'use strict'
+
 module.exports = {
+
 }

@@ -72,9 +72,6 @@ app.param('name', function (req, res, next, id) {
 app.get('/', (req, res) => res.send('Hello World!'));
 
 // admin page
-app.options('/api', cors());
-app.use('/api', cors(), routes.api);
-app.use('/api/admin', cors({ credentials: true, origin: true }), basicUserAuth, routes.admin);
 app.use('/.well-known/webfinger', cors(), routes.webfinger);
 app.use('/u', cors(), routes.user);
 app.use('/m', cors(), routes.message);

@@ -1,8 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const utils = require('../utils')
+const net = require('../net')
+const pub = require('../pub')
 
-router.post('/', utils.validators.outboxActivity, function (req, res) {
+router.post('/', net.validators.outboxActivity, function (req, res) {
   const db = req.app.get('db');
   Promise.all([
     db.collection('objects').insertOne(req.body.object),
@@ -17,11 +19,11 @@ router.post('/', utils.validators.outboxActivity, function (req, res) {
 router.get('/', function (req, res) {
   const db = req.app.get('db');
   db.collection('streams')
-    .find({actor: utils.usernameToIRI(req.user)})
+    .find({actor: pub.utils.usernameToIRI(req.user)})
     .sort({_id: -1})
     .project({_id: 0, _meta: 0, 'object._id': 0, 'object.@context': 0, 'object._meta': 0})
     .toArray()
-    .then(stream => res.json(utils.arrayToCollection(stream, true)))
+    .then(stream => res.json(pub.utils.arrayToCollection(stream, true)))
     .catch(err => {
       console.log(err)
       return res.status(500).send()

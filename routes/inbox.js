@@ -1,14 +1,16 @@
 const express = require('express')
 const router = express.Router()
 const utils = require('../utils')
+const pub = require('../pub')
+const net = require('../net')
 const request = require('request-promise-native')
 const httpSignature = require('http-signature')
 const {ObjectId} = require('mongodb')
 
-router.post('/', utils.validators.activity, function (req, res) {
+router.post('/', net.validators.activity, function (req, res) {
   const db = req.app.get('db');
   let outgoingResponse
-  req.body._meta = {_target: utils.usernameToIRI(req.user)}
+  req.body._meta = {_target: pub.utils.usernameToIRI(req.user)}
   // side effects
   switch(req.body.type) {
     case 'Accept':
@@ -31,7 +33,7 @@ router.post('/', utils.validators.activity, function (req, res) {
       Promise.all([
         utils.getOrCreateActor(req.user, db, true),
         request({
-          url: utils.actorFromActivity(req.body),
+          url: pub.utils.actorFromActivity(req.body),
           headers: {Accept: 'application/activity+json'},
           json: true,
         })
@@ -53,7 +55,7 @@ router.post('/', utils.validators.activity, function (req, res) {
               headers: ['(request-target)', 'host', 'date'],
             },
             json: true,
-            body: utils.toJSONLD({
+            body: pub.utils.toJSONLD({
               _id: newID,
               type: 'Accept',
               id: `https://${req.app.get('domain')}/o/${newID.toHexString()}`,
@@ -80,11 +82,11 @@ router.post('/', utils.validators.activity, function (req, res) {
 router.get('/', function (req, res) {
   const db = req.app.get('db');
   db.collection('streams')
-    .find({'_meta._target': utils.usernameToIRI(req.user)})
+    .find({'_meta._target': pub.utils.usernameToIRI(req.user)})
     .sort({_id: -1})
     .project({_id: 0, _meta: 0, '@context': 0, 'object._id': 0, 'object.@context': 0, 'object._meta': 0})
     .toArray()
-    .then(stream => res.json(utils.arrayToCollection(stream, true)))
+    .then(stream => res.json(pub.utils.arrayToCollection(stream, true)))
     .catch(err => {
       console.log(err)
       return res.status(500).send()

@@ -3,3 +3,5 @@ package-lock.json
 *.db
 config.json
 public/files
+certs/
+.vscode

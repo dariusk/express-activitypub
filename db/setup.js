@@ -1,5 +1,4 @@
-const utils = require('../utils')
-const crypto = require('crypto')
+const pub = require('../pub')
 
 module.exports = async function dbSetup (db, domain) {
     // inbox
@@ -25,7 +24,7 @@ module.exports = async function dbSetup (db, domain) {
     await db.collection('objects').createIndex({
         id: 1
     })
-    const dummyUser = await utils.createLocalActor('dummy', 'Person')
+    const dummyUser = await pub.actor.createLocalActor('dummy', 'Person')
     await db.collection('objects').findOneAndReplace(
         {preferredUsername: 'dummy'},
         dummyUser,

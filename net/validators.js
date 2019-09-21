@@ -1,10 +1,10 @@
 const {ObjectId} = require('mongodb') 
 // const activities = ['Create', ]
-const {ASContext} = require('./consts')
+const pub = require('../pub')
 
 function validateObject (object) {
     if (object && object.id) {
-        object['@context'] = object['@context'] || ASContext
+        object['@context'] = object['@context'] || pub.consts.ASContext
         return true
     }
 }
@@ -31,7 +31,7 @@ module.exports.outboxActivity = function outboxActivity (req, res, next) {
         const newID = new ObjectId()
         req.body = {
             _id: newID,
-            '@context': ASContext,
+            '@context': pub.consts.ASContext,
             type: 'Create',
             id: `https://${req.app.get('domain')}/o/${newID.toHexString()}`,
             actor: req.body.attributedTo,

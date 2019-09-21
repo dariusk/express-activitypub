@@ -2,7 +2,7 @@
 const express = require('express'),
       router = express.Router();
 const utils = require('../utils')
-const {toJSONLD} = require('../utils/index.js');
+const pub = require('../pub')
 
 router.get('/:name', async function (req, res) {
   let name = req.params.name;
@@ -13,7 +13,7 @@ router.get('/:name', async function (req, res) {
     let db = req.app.get('db')
     const user = await utils.getOrCreateActor(name, db)
     if (user) {
-      return res.json(toJSONLD(user))
+      return res.json(pub.utils.toJSONLD(user))
     }
     return res.status(404).send('Person not found')
   }
@@ -28,13 +28,13 @@ router.get('/:name/followers', function (req, res) {
   db.collection('streams')
     .find({
       type: 'Follow',
-      '_meta._target': utils.usernameToIRI(name),
+      '_meta._target': pub.utils.usernameToIRI(name),
     })
     .project({_id: 0, actor: 1})
     .toArray()
     .then(follows => {
-      const followers = follows.map(utils.actorFromActivity)
-      return res.json(utils.arrayToCollection(followers))
+      const followers = follows.map(pub.utils.actorFromActivity)
+      return res.json(pub.utils.arrayToCollection(followers))
     })
     .catch(err => {
       console.log(err)
