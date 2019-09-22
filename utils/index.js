@@ -1,5 +1,5 @@
 'use strict'
 // misc utilities
 module.exports = {
-    consts: require('./consts')
+  consts: require('./consts')
 }

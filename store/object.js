@@ -1,19 +1,19 @@
 'use strict'
 
 module.exports = {
-    get,
-    save,
+  get,
+  save
 }
 
 function get (id, db) {
-    return db.collection('objects')
-    .find({id: id})
+  return db.collection('objects')
+    .find({ id: id })
     .limit(1)
-    .project({_id: 0, _meta: 0})
+    .project({ _id: 0, _meta: 0 })
     .next()
 }
 
-function save (object) {
-    return db.collection('objects')
-        .insertOne(object)
+function save (object, db) {
+  return db.collection('objects')
+    .insertOne(object)
 }

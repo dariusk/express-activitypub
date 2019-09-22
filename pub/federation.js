@@ -3,13 +3,13 @@ const request = require('request-promise-native')
 
 // federation communication utilities
 module.exports = {
-    requestObject,
+  requestObject
 }
 
 function requestObject (id) {
-    return request({
-        url: id,
-        headers: {Accept: 'application/activity+json'},
-        json: true,
-      })
+  return request({
+    url: id,
+    headers: { Accept: 'application/activity+json' },
+    json: true
+  })
 }

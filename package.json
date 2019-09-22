@@ -1,7 +1,7 @@
 {
-  "name": "hubbubpub",
-  "version": "1.0.0",
-  "description": "",
+  "name": "guppe",
+  "version": "0.0.1",
+  "description": "Decentralized social groups with ActivityPub, NodeJS, Express, and Mongodb",
   "main": "index.js",
   "dependencies": {
     "body-parser": "^1.18.3",
@@ -17,6 +17,7 @@
     "node": ">=10.10.0"
   },
   "devDependencies": {
+    "standard": "^14.3.1",
     "standardjs": "^1.0.0-alpha"
   },
   "scripts": {
@@ -24,5 +25,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Will Murphy",
-  "license": "AGPL-3.0-or-later"
+  "license": "AGPL-3.0-or-later",
+  "repository": "https://github.com/wmurphyrd/guppe"
 }

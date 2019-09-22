@@ -1,69 +1,67 @@
 const crypto = require('crypto')
-const request = require('request-promise-native')
-const {promisify} = require('util')
+const { promisify } = require('util')
 
 const store = require('../store')
-const federation = require('./federation')
 const pubUtils = require('./utils')
 const config = require('../config.json')
 
 const generateKeyPairPromise = promisify(crypto.generateKeyPair)
 
 module.exports = {
-    createLocalActor,
-    getOrCreateActor
+  createLocalActor,
+  getOrCreateActor
 }
 
 function createLocalActor (name, type) {
-    return generateKeyPairPromise('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem'
-        },
-        privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem',
-        }
-    }).then(pair => {
-        const actorBase = pubUtils.usernameToIRI(name);
-        return {
-            _meta: {
-                privateKey: pair.privateKey,
-            },
-            id: `${actorBase}`,
-            "type": type,
-            "following": `${actorBase}/following`,
-            "followers": `${actorBase}/followers`,
-            "liked": `${actorBase}/liked`,
-            "inbox": `${actorBase}/inbox`,
-            "outbox": `${actorBase}/outbox`,
-            "preferredUsername": name,
-            "name": "Dummy Person",
-            "summary": "Gotta have someone in the db",
-            "icon": `https://${config.DOMAIN}/f/${name}.png`,
-            publicKey: {
-                'id': `${actorBase}#main-key`,
-                'owner': `${actorBase}`,
-                'publicKeyPem': pair.publicKey
-            },
-        }
-    })
+  return generateKeyPairPromise('rsa', {
+    modulusLength: 4096,
+    publicKeyEncoding: {
+      type: 'spki',
+      format: 'pem'
+    },
+    privateKeyEncoding: {
+      type: 'pkcs8',
+      format: 'pem'
+    }
+  }).then(pair => {
+    const actorBase = pubUtils.usernameToIRI(name)
+    return {
+      _meta: {
+        privateKey: pair.privateKey
+      },
+      id: `${actorBase}`,
+      type: type,
+      following: `${actorBase}/following`,
+      followers: `${actorBase}/followers`,
+      liked: `${actorBase}/liked`,
+      inbox: `${actorBase}/inbox`,
+      outbox: `${actorBase}/outbox`,
+      preferredUsername: name,
+      name: 'Dummy Person',
+      summary: 'Gotta have someone in the db',
+      icon: `https://${config.DOMAIN}/f/${name}.png`,
+      publicKey: {
+        id: `${actorBase}#main-key`,
+        owner: `${actorBase}`,
+        publicKeyPem: pair.publicKey
+      }
+    }
+  })
 }
 
 async function getOrCreateActor (preferredUsername, db, includeMeta) {
-    const id = pubUtils.usernameToIRI(preferredUsername)
-    let user = await store.actor.getActor(id, db, includeMeta)
-    if (user) {
-        return user
-    }
-    // auto create groups whenever an unknown actor is referenced
-    user = await createLocalActor(preferredUsername, 'Group')
-    await db.collection('objects').insertOne(user)
-    // only executed on success
-    delete user._id
-    if (includeMeta !== true) {
-        delete user._meta
-    }
+  const id = pubUtils.usernameToIRI(preferredUsername)
+  let user = await store.actor.getActor(id, db, includeMeta)
+  if (user) {
     return user
+  }
+  // auto create groups whenever an unknown actor is referenced
+  user = await createLocalActor(preferredUsername, 'Group')
+  await db.collection('objects').insertOne(user)
+  // only executed on success
+  delete user._id
+  if (includeMeta !== true) {
+    delete user._meta
+  }
+  return user
 }
