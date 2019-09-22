@@ -1,13 +1,17 @@
 const crypto = require('crypto')
+const request = require('request-promise-native')
 const {promisify} = require('util')
 
+const store = require('../store')
+const federation = require('./federation')
 const pubUtils = require('./utils')
 const config = require('../config.json')
 
 const generateKeyPairPromise = promisify(crypto.generateKeyPair)
 
 module.exports = {
-    createLocalActor
+    createLocalActor,
+    getOrCreateActor
 }
 
 function createLocalActor (name, type) {
@@ -45,4 +49,21 @@ function createLocalActor (name, type) {
             },
         }
     })
+}
+
+async function getOrCreateActor (preferredUsername, db, includeMeta) {
+    const id = pubUtils.usernameToIRI(preferredUsername)
+    let user = await store.actor.getActor(id, db, includeMeta)
+    if (user) {
+        return user
+    }
+    // auto create groups whenever an unknown actor is referenced
+    user = await createLocalActor(preferredUsername, 'Group')
+    await db.collection('objects').insertOne(user)
+    // only executed on success
+    delete user._id
+    if (includeMeta !== true) {
+        delete user._meta
+    }
+    return user
 }

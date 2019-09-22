@@ -2,7 +2,7 @@
 const express = require('express')
 const router = express.Router()
 
-const store = require('../store')
+const pub = require('../pub')
 const acctReg = /acct:[@~]?([^@]+)@?(.*)/
 router.get('/', function (req, res) {
   let resource = req.query.resource;
@@ -14,7 +14,7 @@ router.get('/', function (req, res) {
     return res.status(400).send('Requested user is not from this domain')
   }
   let db = req.app.get('db');
-  store.actor.getOrCreateActor(acct[1], db)
+  pub.actor.getOrCreateActor(acct[1], db)
     .then(result => {
       if (!result) {
         return res.status(404).send(`${acct[1]}@${acct[2]} not found`)

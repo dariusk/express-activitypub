@@ -2,6 +2,8 @@
 // ActivityPub / ActivityStreams utils
 module.exports = {
     actor: require('./actor'),
-    utils: require('./utils'),
     consts: require('./consts'),
+    federation: require('./federation'),
+    object: require('./object'),
+    utils: require('./utils'),
 }

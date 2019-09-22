@@ -12,7 +12,7 @@ router.get('/:name', async function (req, res) {
   }
   else {
     let db = req.app.get('db')
-    const user = await store.actor.getOrCreateActor(name, db)
+    const user = await pub.actor.getOrCreateActor(name, db)
     if (user) {
       return res.json(pub.utils.toJSONLD(user))
     }

@@ -1,6 +1,6 @@
-const pub = require('../pub')
+'use strict'
 
-module.exports = async function dbSetup (db, domain) {
+module.exports = async function dbSetup (db, domain, dummyUser) {
     // inbox
     await db.collection('streams').createIndex({
         '_meta._target': 1,
@@ -24,13 +24,14 @@ module.exports = async function dbSetup (db, domain) {
     await db.collection('objects').createIndex({
         id: 1
     })
-    const dummyUser = await pub.actor.createLocalActor('dummy', 'Person')
-    await db.collection('objects').findOneAndReplace(
-        {preferredUsername: 'dummy'},
-        dummyUser,
-        {
-            upsert: true,
-            returnOriginal: false,
-        }
-    )
+    if (dummyUser) {
+        return db.collection('objects').findOneAndReplace(
+            {preferredUsername: 'dummy'},
+            dummyUser,
+            {
+                upsert: true,
+                returnOriginal: false,
+            }
+        )
+    }
 }

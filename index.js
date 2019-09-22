@@ -3,21 +3,22 @@ const path = require('path')
 const express = require('express');
 const MongoClient = require('mongodb').MongoClient;
 const fs = require('fs');
-const routes = require('./routes')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const http = require('http')
 const https = require('https')
 const basicAuth = require('express-basic-auth');
 
-const config = require('./config.json');
-const { USER, PASS, DOMAIN, KEY_PATH, CERT_PATH, PORT, PORT_HTTPS } = config;
+const routes = require('./routes')
+const pub = require('./pub')
+const config = require('./config.json')
+const { USER, PASS, DOMAIN, KEY_PATH, CERT_PATH, PORT, PORT_HTTPS } = config
 
 const app = express();
 // Connection URL
 const url = 'mongodb://localhost:27017';
 
-const dbSetup = require('./store/setup');
+const store = require('./store');
 // Database Name
 const dbName = 'test';
 
@@ -87,7 +88,10 @@ client.connect({useNewUrlParser: true})
     console.log("Connected successfully to server");
     db = client.db(dbName);
     app.set('db', db);
-    return dbSetup(db, DOMAIN)
+    return pub.actor.createLocalActor('dummy', 'Person')
+  })
+  .then(dummy => {
+    return store.setup(db, DOMAIN, dummy)
   })
   .then(() => {
     https.createServer(sslOptions, app).listen(app.get('port-https'), function () {

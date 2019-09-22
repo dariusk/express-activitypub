@@ -8,36 +8,21 @@ const request = require('request-promise-native')
 const httpSignature = require('http-signature')
 const {ObjectId} = require('mongodb')
 
-router.post('/', net.validators.activity, function (req, res) {
+router.post('/', net.validators.activity, net.security.verifySignature, function (req, res) {
   const db = req.app.get('db');
   let outgoingResponse
   req.body._meta = {_target: pub.utils.usernameToIRI(req.user)}
   // side effects
   switch(req.body.type) {
     case 'Accept':
-      // workaround for node-http-signature#87
-      const tempUrl = req.url
-      req.url = req.originalUrl
-      sigHead = httpSignature.parse(req, {clockSkew: 3000})
-      req.url = tempUrl
-      // TODO - real key lookup with remote fetch
-      store.actor.getActor(sigHead.keyId.replace(/.*\//, ''), db)
-      .then(user => {
-        const valid = httpSignature.verifySignature(sigHead, user.publicKey.publicKeyPem)
-        console.log('key validation', valid)
-        return res.status(valid ? 200 : 401).send()
-      })
+      // TODO - side effect ncessary for following collection?
       break
     case 'Follow':
       req.body._meta._target = req.body.object.id
       // send acceptance reply
       Promise.all([
-        store.actor.getOrCreateActor(req.user, db, true),
-        request({
-          url: pub.utils.actorFromActivity(req.body),
-          headers: {Accept: 'application/activity+json'},
-          json: true,
-        })
+        pub.actor.getOrCreateActor(req.user, db, true),
+        pub.object.resolveObject(pub.utils.actorFromActivity(req.body), db),
       ])
         .then(([user, actor]) => {
           if (!actor || !actor.inbox) {

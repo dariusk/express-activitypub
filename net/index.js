@@ -1,6 +1,6 @@
 'use strict';
-// middleware and networking utils
+// middleware
 module.exports = {
   validators: require('./validators'),
-//   comms: require('./comms'),
+  security: require('./security'),
 };
