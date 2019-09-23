@@ -2,13 +2,14 @@ const express = require('express')
 const router = express.Router()
 const net = require('../net')
 const pub = require('../pub')
+const store = require('../store')
 
 router.post('/', net.validators.outboxActivity, function (req, res) {
-  const db = req.app.get('db')
-  Promise.all([
-    db.collection('objects').insertOne(req.body.object),
-    db.collection('streams').insertOne(req.body)
-  ]).then(() => res.status(200).send())
+  store.actor.get(pub.utils.usernameToIRI(req.user), true)
+    .then(actor => {
+      return pub.activity.addToOutbox(actor, req.body)
+    })
+    .then(() => res.status(200).send())
     .catch(err => {
       console.log(err)
       res.status(500).send()

@@ -1,13 +1,15 @@
 'use strict'
-
+const connection = require('./connection')
 module.exports = {
-  getActor
+  getActor,
+  get: getActor
 }
 
 const actorProj = { _id: 0, _meta: 0 }
 const metaActorProj = { _id: 0 }
 
-function getActor (id, db, includeMeta) {
+function getActor (id, includeMeta) {
+  const db = connection.getDb()
   return db.collection('objects')
     .find({ id: id })
     .limit(1)

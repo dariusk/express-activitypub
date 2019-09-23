@@ -49,15 +49,15 @@ function createLocalActor (name, type) {
   })
 }
 
-async function getOrCreateActor (preferredUsername, db, includeMeta) {
+async function getOrCreateActor (preferredUsername, includeMeta) {
   const id = pubUtils.usernameToIRI(preferredUsername)
-  let user = await store.actor.getActor(id, db, includeMeta)
+  let user = await store.actor.getActor(id, includeMeta)
   if (user) {
     return user
   }
   // auto create groups whenever an unknown actor is referenced
   user = await createLocalActor(preferredUsername, 'Group')
-  await db.collection('objects').insertOne(user)
+  await store.object.save(user)
   // only executed on success
   delete user._id
   if (includeMeta !== true) {

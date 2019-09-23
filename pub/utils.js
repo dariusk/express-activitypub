@@ -1,12 +1,15 @@
 'use strict'
 const config = require('../config.json')
-const consts = require('./consts')
+const pubConsts = require('./consts')
 
 module.exports = {
   usernameToIRI,
   toJSONLD,
   arrayToCollection,
-  actorFromActivity
+  actorFromActivity,
+  objectIdToIRI,
+  validateActivity,
+  validateObject
 }
 
 function actorFromActivity (activity) {
@@ -21,7 +24,7 @@ function actorFromActivity (activity) {
 
 function arrayToCollection (arr, ordered) {
   return {
-    '@context': consts.ASContext,
+    '@context': pubConsts.ASContext,
     totalItems: arr.length,
     type: ordered ? 'orderedCollection' : 'collection',
     [ordered ? 'orderedItems' : 'items']: arr
@@ -29,10 +32,30 @@ function arrayToCollection (arr, ordered) {
 }
 
 function toJSONLD (obj) {
-  obj['@context'] = obj['@context'] || consts.ASContext
+  obj['@context'] = obj['@context'] || pubConsts.ASContext
   return obj
 }
 
 function usernameToIRI (user) {
   return `https://${config.DOMAIN}/u/${user}`
+}
+
+function objectIdToIRI (oid) {
+  if (oid.toHexString) {
+    oid = oid.toHexString()
+  }
+  return `https://${config.DOMAIN}/o/${oid}`
+}
+
+function validateObject (object) {
+  if (object && object.id) {
+    // object['@context'] = object['@context'] || pubConsts.ASContext
+    return true
+  }
+}
+
+function validateActivity (object) {
+  if (object && object.id && object.actor) {
+    return true
+  }
 }

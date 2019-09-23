@@ -2,58 +2,30 @@ const express = require('express')
 const router = express.Router()
 const pub = require('../pub')
 const net = require('../net')
-const request = require('request-promise-native')
-const { ObjectId } = require('mongodb')
+const store = require('../store')
 
 router.post('/', net.validators.activity, net.security.verifySignature, function (req, res) {
-  const db = req.app.get('db')
   req.body._meta = { _target: pub.utils.usernameToIRI(req.user) }
   // side effects
   switch (req.body.type) {
     case 'Accept':
-      // TODO - side effect ncessary for following collection?
+      // TODO - side effect necessary for following collection?
       break
     case 'Follow':
       req.body._meta._target = req.body.object.id
       // send acceptance reply
-      Promise.all([
-        pub.actor.getOrCreateActor(req.user, db, true),
-        pub.object.resolveObject(pub.utils.actorFromActivity(req.body), db)
-      ])
-        .then(([user, actor]) => {
-          if (!actor || !actor.inbox) {
-            throw new Error('unable to send follow request acceptance: actor inbox not retrievable')
-          }
-          const newID = new ObjectId()
-          const responseOpts = {
-            method: 'POST',
-            url: actor.inbox,
-            headers: {
-              'Content-Type': 'application/activity+json'
-            },
-            httpSignature: {
-              key: user._meta.privateKey,
-              keyId: user.id,
-              headers: ['(request-target)', 'host', 'date']
-            },
-            json: true,
-            body: pub.utils.toJSONLD({
-              _id: newID,
-              type: 'Accept',
-              id: `https://${req.app.get('domain')}/o/${newID.toHexString()}`,
-              actor: user.id,
-              object: req.body
-            })
-          }
-          return request(responseOpts)
+      pub.actor.getOrCreateActor(req.user, true)
+        .then(user => {
+          const to = [pub.utils.actorFromActivity(req.body)]
+          const accept = pub.activity.build('Accept', user.id, req.body.id, to)
+          return pub.activity.addToOutbox(user, accept)
         })
-        .then(result => console.log('success', result))
         .catch(e => console.log(e))
       break
   }
   Promise.all([
-    db.collection('objects').insertOne(req.body.object),
-    db.collection('streams').insertOne(req.body)
+    pub.object.resolve(req.body.object),
+    store.stream.save(req.body)
   ]).then(() => res.status(200).send())
     .catch(err => {
       console.log(err)

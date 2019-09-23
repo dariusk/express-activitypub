@@ -63,10 +63,11 @@ client.connect({ useNewUrlParser: true })
     console.log('Connected successfully to server')
     db = client.db(dbName)
     app.set('db', db)
+    store.connection.setDb(db)
     return pub.actor.createLocalActor('dummy', 'Person')
   })
   .then(dummy => {
-    return store.setup(db, DOMAIN, dummy)
+    return store.setup(DOMAIN, dummy)
   })
   .then(() => {
     https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
