@@ -22,6 +22,18 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
         })
         .catch(e => console.log(e))
       break
+    case 'Create':
+      pub.actor.getOrCreateActor(req.user, true)
+        .then(user => {
+          const to = [user.followers]
+          const cc = [
+            pub.utils.actorFromActivity(req.body),
+            'https://www.w3.org/ns/activitystreams#Public'
+          ]
+          const accept = pub.activity.build('Announce', user.id, req.body.id, to, cc)
+          return pub.activity.addToOutbox(user, accept)
+        }).catch(e => console.log(e))
+      break
   }
   Promise.all([
     pub.object.resolve(req.body.object),
