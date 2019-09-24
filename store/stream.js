@@ -1,21 +1,23 @@
 'use strict'
 const connection = require('./connection')
 module.exports = {
-  // get,
+  get,
   save
 }
 
-// function get (id, type, db) {
-//   return db.collection('objects')
-//     .find({ id: id })
-//     .limit(1)
-//     .project({ _id: 0, _meta: 0 })
-//     .next()
-// }
+function get (id) {
+  const db = connection.getDb()
+  return db.collection('streams')
+    .find({ id: id })
+    .limit(1)
+    .project({ _id: 0, _meta: 0 })
+    .next()
+}
 
 async function save (activity) {
   const db = connection.getDb()
   const q = { id: activity.id }
+  // activities may be duplicated for multiple local targets
   if (activity._meta && activity._meta._target) {
     q['_meta._target'] = activity._meta._target
   }

@@ -3,6 +3,7 @@ const config = require('../config.json')
 const pubConsts = require('./consts')
 
 module.exports = {
+  actvityIdToIRI,
   usernameToIRI,
   toJSONLD,
   arrayToCollection,
@@ -45,6 +46,13 @@ function objectIdToIRI (oid) {
     oid = oid.toHexString()
   }
   return `https://${config.DOMAIN}/o/${oid}`
+}
+
+function actvityIdToIRI (oid) {
+  if (oid.toHexString) {
+    oid = oid.toHexString()
+  }
+  return `https://${config.DOMAIN}/s/${oid}`
 }
 
 function validateObject (object) {

@@ -1,9 +1,10 @@
 'use strict'
 
 module.exports = {
-  user: require('./user'),
-  message: require('./message'),
   inbox: require('./inbox'),
+  object: require('./object'),
   outbox: require('./outbox'),
+  stream: require('./stream'),
+  user: require('./user'),
   webfinger: require('./webfinger')
 }

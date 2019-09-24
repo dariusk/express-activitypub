@@ -8,21 +8,11 @@ const https = require('https')
 
 const routes = require('./routes')
 const pub = require('./pub')
-const config = require('./config.json')
-const { DOMAIN, KEY_PATH, CERT_PATH, PORT, PORT_HTTPS } = config
+const store = require('./store')
+const { DOMAIN, KEY_PATH, CERT_PATH, PORT, PORT_HTTPS, DB_URL, DB_NAME } = require('./config.json')
 
 const app = express()
-// Connection URL
-const url = 'mongodb://localhost:27017'
-
-const store = require('./store')
-// Database Name
-const dbName = 'test'
-
-// Create a new MongoClient
-const client = new MongoClient(url, { useUnifiedTopology: true })
-
-let db
+const client = new MongoClient(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
 
 const sslOptions = {
   key: fs.readFileSync(path.join(__dirname, KEY_PATH)),
@@ -50,18 +40,22 @@ app.get('/', (req, res) => res.send('Hello World!'))
 // admin page
 app.use('/.well-known/webfinger', cors(), routes.webfinger)
 app.use('/u', cors(), routes.user)
-app.use('/m', cors(), routes.message)
+app.use('/o', cors(), routes.object)
+
+// admin page
+app.use('/.well-known/webfinger', cors(), routes.webfinger)
+app.use('/u', cors(), routes.user)
+app.use('/o', cors(), routes.object)
+app.use('/s', cors(), routes.stream)
 app.use('/u/:name/inbox', routes.inbox)
 app.use('/u/:name/outbox', routes.outbox)
 app.use('/admin', express.static('public/admin'))
 app.use('/f', express.static('public/files'))
-// app.use('/hubs', express.static('../hubs/dist'));
 
-// Use connect method to connect to the Server
 client.connect({ useNewUrlParser: true })
   .then(() => {
-    console.log('Connected successfully to server')
-    db = client.db(dbName)
+    console.log('Connected successfully to db')
+    const db = client.db(DB_NAME)
     app.set('db', db)
     store.connection.setDb(db)
     return pub.actor.createLocalActor('dummy', 'Person')

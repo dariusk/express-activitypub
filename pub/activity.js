@@ -14,7 +14,7 @@ function build (type, actorId, object, to, cc, etc) {
   const oid = new ObjectId()
   const act = Object.assign({
     // _id: oid,
-    id: pubUtils.objectIdToIRI(oid),
+    id: pubUtils.actvityIdToIRI(oid),
     type,
     actor: actorId,
     object,

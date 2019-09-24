@@ -4,7 +4,7 @@ const net = require('../net')
 const pub = require('../pub')
 const store = require('../store')
 
-router.post('/', net.validators.outboxActivity, function (req, res) {
+router.post('/', net.security.auth, net.validators.outboxActivity, function (req, res) {
   store.actor.get(pub.utils.usernameToIRI(req.user), true)
     .then(actor => {
       return pub.activity.addToOutbox(actor, req.body)
