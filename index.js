@@ -35,8 +35,6 @@ app.param('name', function (req, res, next, id) {
   next()
 })
 
-app.get('/', (req, res) => res.send('Hello World!'))
-
 // admin page
 app.use('/.well-known/webfinger', cors(), routes.webfinger)
 app.use('/u', cors(), routes.user)
@@ -49,7 +47,7 @@ app.use('/o', cors(), routes.object)
 app.use('/s', cors(), routes.stream)
 app.use('/u/:name/inbox', routes.inbox)
 app.use('/u/:name/outbox', routes.outbox)
-app.use('/admin', express.static('public/admin'))
+app.use('/', express.static('public/www'))
 app.use('/f', express.static('public/files'))
 
 client.connect({ useNewUrlParser: true })
