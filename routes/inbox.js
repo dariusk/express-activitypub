@@ -6,18 +6,19 @@ const store = require('../store')
 
 router.post('/', net.validators.activity, net.security.verifySignature, function (req, res) {
   req.body._meta = { _target: pub.utils.usernameToIRI(req.user) }
+  console.log(req.body);
   // side effects
   switch (req.body.type) {
     case 'Accept':
       // TODO - side effect necessary for following collection?
       break
     case 'Follow':
-      req.body._meta._target = req.body.object.id
+      //req.body._meta._target = req.body.object.id
       // send acceptance reply
       pub.actor.getOrCreateActor(req.user, true)
         .then(user => {
           const to = [pub.utils.actorFromActivity(req.body)]
-          const accept = pub.activity.build('Accept', user.id, req.body.id, to)
+          const accept = pub.activity.build('Accept', user.id, req.body, to)
           return pub.activity.addToOutbox(user, accept)
         })
         .catch(e => console.log(e))
@@ -30,7 +31,7 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
             pub.utils.actorFromActivity(req.body),
             'https://www.w3.org/ns/activitystreams#Public'
           ]
-          const accept = pub.activity.build('Announce', user.id, req.body.id, to, cc)
+          const accept = pub.activity.build('Announce', user.id, req.body.object.id, to, cc)
           return pub.activity.addToOutbox(user, accept)
         }).catch(e => console.log(e))
       break

@@ -64,7 +64,7 @@ function addToOutbox (actor, activity) {
   return Promise.all([
     // ensure object is cached, but don't alter representation in activity
     // so activities can be sent with objects as links
-    pubObject.resolve(activity.object),
+    //pubObject.resolve(activity.object),
     store.stream.save(activity),
     address(activity).then(addresses => pubFederation.deliver(actor, activity, addresses))
   ])
