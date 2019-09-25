@@ -7,7 +7,8 @@ const pubFederation = require('./federation')
 module.exports = {
   address,
   addToOutbox,
-  build
+  build,
+  undo
 }
 
 function build (type, actorId, object, to, cc, etc) {
@@ -61,11 +62,26 @@ async function address (activity) {
 }
 
 function addToOutbox (actor, activity) {
-  return Promise.all([
-    // ensure object is cached, but don't alter representation in activity
-    // so activities can be sent with objects as links
-    //pubObject.resolve(activity.object),
+  const tasks = [
     store.stream.save(activity),
     address(activity).then(addresses => pubFederation.deliver(actor, activity, addresses))
-  ])
+  ]
+  // ensure activity object is cached if local, but do not try to resolve links
+  // because Mastodon won't resolve activity IRIs
+  if (pubUtils.validateObject(activity.object)) {
+    tasks.push(pubObject.resolve(activity.object))
+  }
+  return Promise.all(tasks)
+}
+
+function undo (activity, undoActor) {
+  if (!pubUtils.validateActivity(activity)) {
+    if (!activity || Object.prototype.toString.call(activity) !== '[object String]') {
+      throw new Error('Invalid undo target')
+    }
+    activity = { id: activity }
+  }
+  // matches the target activity with the actor from the undo
+  // so actors can only undo their own activities
+  return store.stream.remove(activity, undoActor)
 }

@@ -6,14 +6,19 @@ const store = require('../store')
 
 router.post('/', net.validators.activity, net.security.verifySignature, function (req, res) {
   req.body._meta = { _target: pub.utils.usernameToIRI(req.user) }
-  console.log(req.body);
+  console.log(req.body)
+  const toDo = {
+    saveActivity: true,
+    saveObject: false
+  }
   // side effects
   switch (req.body.type) {
     case 'Accept':
       // TODO - side effect necessary for following collection?
       break
     case 'Follow':
-      //req.body._meta._target = req.body.object.id
+      // TODO resolve object and ensure specified target matches inbox user
+      // req.body._meta._target = req.body.object.id
       // send acceptance reply
       pub.actor.getOrCreateActor(req.user, true)
         .then(user => {
@@ -24,6 +29,7 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
         .catch(e => console.log(e))
       break
     case 'Create':
+      toDo.saveObject = true
       pub.actor.getOrCreateActor(req.user, true)
         .then(user => {
           const to = [user.followers]
@@ -31,15 +37,23 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
             pub.utils.actorFromActivity(req.body),
             'https://www.w3.org/ns/activitystreams#Public'
           ]
-          const accept = pub.activity.build('Announce', user.id, req.body.object.id, to, cc)
-          return pub.activity.addToOutbox(user, accept)
+          const announce = pub.activity.build('Announce', user.id, req.body.object.id, to, cc)
+          return pub.activity.addToOutbox(user, announce)
         }).catch(e => console.log(e))
       break
+    case 'Undo':
+      pub.activity.undo(req.body.object, req.body.actor)
+        .catch(err => console.log(err))
+      break
   }
-  Promise.all([
-    pub.object.resolve(req.body.object),
-    store.stream.save(req.body)
-  ]).then(() => res.status(200).send())
+  const tasks = []
+  if (toDo.saveObject) {
+    tasks.push(pub.object.resolve(req.body.object))
+  }
+  if (toDo.saveActivity) {
+    tasks.push(store.stream.save(req.body))
+  }
+  Promise.all(tasks).then(() => res.status(200).send())
     .catch(err => {
       console.log(err)
       res.status(500).send()

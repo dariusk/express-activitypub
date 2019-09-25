@@ -2,6 +2,7 @@
 const connection = require('./connection')
 module.exports = {
   get,
+  remove,
   save
 }
 
@@ -33,4 +34,9 @@ async function save (activity) {
   return db.collection('streams')
     // server object ID avoids mutating local copy of document
     .insertOne(activity, { forceServerObjectId: true })
+}
+
+function remove (activity, actor) {
+  return connection.getDb().collection('streams')
+    .deleteMany({ id: activity.id, actor: actor })
 }

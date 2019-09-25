@@ -24,7 +24,7 @@ function deliver (actor, activity, addresses) {
     delete activity.bcc
   }
   const requests = addresses.map(addr => {
-    console.log(`delivering to${addr}`) 
+    console.log(`delivering to ${addr}`)
     return request({
       method: 'POST',
       url: addr,
