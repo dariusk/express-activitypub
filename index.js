@@ -9,14 +9,15 @@ const https = require('https')
 const routes = require('./routes')
 const pub = require('./pub')
 const store = require('./store')
-const { DOMAIN, KEY_PATH, CERT_PATH, PORT, PORT_HTTPS, DB_URL, DB_NAME } = require('./config.json')
+const { DOMAIN, KEY_PATH, CERT_PATH, CA_PATH, PORT, PORT_HTTPS, DB_URL, DB_NAME } = require('./config.json')
 
 const app = express()
 const client = new MongoClient(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
 
 const sslOptions = {
   key: fs.readFileSync(path.join(__dirname, KEY_PATH)),
-  cert: fs.readFileSync(path.join(__dirname, CERT_PATH))
+  cert: fs.readFileSync(path.join(__dirname, CERT_PATH)),
+  ca: CA_PATH ? fs.readFileSync(path.join(__dirname, CA_PATH)) : undefined
 }
 
 app.set('domain', DOMAIN)

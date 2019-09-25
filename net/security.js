@@ -16,19 +16,16 @@ function auth (req, res, next) {
 }
 
 async function verifySignature (req, res, next) {
-  if (!req.get('authorization')) {
+  if (!req.get('authorization') && !req.get('signature')) {
     // support for apps not using signature extension to ActivityPub
     const actor = await pub.object.resolveObject(pub.utils.actorFromActivity(req.body))
     if (actor.publicKey && req.app.get('env') !== 'development') {
+      console.log('Missing http signature', req)
       return res.status(400).send('Missing http signature')
     }
     return next()
   }
-  // workaround for node-http-signature#87
-  const tempUrl = req.url
-  req.url = req.originalUrl
   const sigHead = httpSignature.parse(req)
-  req.url = tempUrl
   const signer = await pub.object.resolveObject(sigHead.keyId, req.app.get('db'))
   const valid = httpSignature.verifySignature(sigHead, signer.publicKey.publicKeyPem)
   console.log('signature validation', valid)

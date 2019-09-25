@@ -33,7 +33,8 @@ function deliver (actor, activity, addresses) {
       httpSignature: {
         key: actor._meta.privateKey,
         keyId: actor.id,
-        headers: ['(request-target)', 'host', 'date']
+        headers: ['(request-target)', 'host', 'date'],
+        authorizationHeaderName: 'Signature'
       },
       json: true,
       body: pubUtils.toJSONLD(activity)

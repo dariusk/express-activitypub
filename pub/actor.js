@@ -37,9 +37,9 @@ function createLocalActor (name, type) {
       inbox: `${actorBase}/inbox`,
       outbox: `${actorBase}/outbox`,
       preferredUsername: name,
-      name: 'Dummy Person',
-      summary: 'Gotta have someone in the db',
-      icon: `https://${config.DOMAIN}/f/${name}.png`,
+      name: `${name} group`,
+      summary: `I'm a group about ${name}. Follow me to get all the group posts. Tag me to share with the group. Create other groups by searching for or tagging @yourGroupName@${config.DOMAIN}`,
+      icon: `https://${config.DOMAIN}/f/guppe.png`,
       publicKey: {
         id: `${actorBase}#main-key`,
         owner: `${actorBase}`,
