@@ -38,21 +38,21 @@ function toJSONLD (obj) {
 }
 
 function usernameToIRI (user) {
-  return `https://${config.DOMAIN}/u/${user}`
+  return `https://${config.DOMAIN}/u/${user}`.toLowerCase()
 }
 
 function objectIdToIRI (oid) {
   if (oid.toHexString) {
     oid = oid.toHexString()
   }
-  return `https://${config.DOMAIN}/o/${oid}`
+  return `https://${config.DOMAIN}/o/${oid}`.toLowerCase()
 }
 
 function actvityIdToIRI (oid) {
   if (oid.toHexString) {
     oid = oid.toHexString()
   }
-  return `https://${config.DOMAIN}/s/${oid}`
+  return `https://${config.DOMAIN}/s/${oid}`.toLowerCase()
 }
 
 function validateObject (object) {
