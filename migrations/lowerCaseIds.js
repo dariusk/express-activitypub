@@ -2,7 +2,7 @@ db.objects.find({type: "Group"}).forEach(function(d){
   d.id = d.id.toLowerCase();
   db.objects.save(d);
 });
-db.streams.find({"_meta._target": {$exists: true}}).forEach(function(d){
+db.streams.find({"_meta._target": {$ne: null}}).forEach(function(d){
   d._meta._target = d._meta._target.toLowerCase();
   db.objects.save(d);
 });
