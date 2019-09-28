@@ -24,7 +24,6 @@ function deliver (actor, activity, addresses) {
     delete activity.bcc
   }
   const requests = addresses.map(addr => {
-    console.log(`delivering to ${addr}`)
     return request({
       method: 'POST',
       url: addr,
@@ -42,7 +41,7 @@ function deliver (actor, activity, addresses) {
       simple: false,
       body: pubUtils.toJSONLD(activity)
     })
-      .then(result => console.log(addr, result.statusCode))
+      .then(result => console.log('delivery:', addr, result.statusCode))
       .catch(err => console.log(err))
   })
   return Promise.all(requests)

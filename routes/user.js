@@ -9,6 +9,7 @@ router.get('/:name', net.validators.jsonld, function (req, res) {
   if (!name) {
     return res.status(400).send('Bad request.')
   }
+  console.log('User json ', name)
   pub.actor.getOrCreateActor(name)
     .then(group => {
       return res.json(pub.utils.toJSONLD(group))
@@ -24,6 +25,7 @@ router.get('/:name', function (req, res) {
   if (!name) {
     return res.status(400).send('Bad request.')
   }
+  console.log('User html ', name)
   pub.actor.getOrCreateActor(name)
     .then(group => {
       const groupAcct = `${group.preferredUsername}@${req.app.get('domain')}`

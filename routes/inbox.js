@@ -6,7 +6,6 @@ const store = require('../store')
 
 router.post('/', net.validators.activity, net.security.verifySignature, function (req, res) {
   req.body._meta = { _target: pub.utils.usernameToIRI(req.user) }
-  console.log(req.body)
   const toDo = {
     saveActivity: true,
     saveObject: false
