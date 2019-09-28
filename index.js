@@ -44,7 +44,7 @@ app.param('name', function (req, res, next, id) {
 })
 
 // json only routes
-app.use('/.well-known/webfinger', net.validators.jsonld, cors(), routes.webfinger)
+app.use('/.well-known/webfinger', cors(), routes.webfinger)
 app.use('/o', net.validators.jsonld, cors(), routes.object)
 app.use('/s', net.validators.jsonld, cors(), routes.stream)
 app.use('/u/:name/inbox', net.validators.jsonld, routes.inbox)

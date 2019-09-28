@@ -14,10 +14,10 @@ function activity (req, res, next) {
 }
 
 function jsonld (req, res, next) {
-  if (req.method === 'GET' && pub.consts.jsonldTypes.includes(req.get('Accept'))) {
+  if (req.method === 'GET' && req.accepts(pub.consts.jsonldTypes)) {
     return next()
   }
-  if (req.method === 'POST' && pub.consts.jsonldTypes.includes(req.get('Content-Type'))) {
+  if (req.method === 'POST' && req.is(pub.consts.jsonldTypes)) {
     return next()
   }
   next('route')
