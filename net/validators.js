@@ -14,7 +14,11 @@ function activity (req, res, next) {
 }
 
 function jsonld (req, res, next) {
-  if (req.method === 'GET' && req.accepts(pub.consts.jsonldTypes)) {
+  if (
+    req.method === 'GET' && !req.accepts('html') &&
+    req.accepts(pub.consts.jsonldTypes)
+  ) {
+    // rule out html because some browsers accept */* at end of list
     return next()
   }
   if (req.method === 'POST' && req.is(pub.consts.jsonldTypes)) {
