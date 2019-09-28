@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const https = require('https')
 const nunjucks = require('nunjucks')
+const morgan = require('morgan')
 
 const routes = require('./routes')
 const pub = require('./pub')
@@ -31,6 +32,7 @@ const sslOptions = {
 app.set('domain', DOMAIN)
 app.set('port', process.env.PORT || PORT)
 app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS)
+app.use(morgan('combined'))
 app.use(bodyParser.json({
   type: pub.consts.jsonldTypes
 })) // support json encoded bodies
