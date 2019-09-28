@@ -10,6 +10,7 @@
     "express-basic-auth": "^1.1.5",
     "http-signature": "github:wmurphyrd/node-http-signature#9c02eeb",
     "mongodb": "^3.3.2",
+    "nunjucks": "^3.2.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
   },
@@ -17,6 +18,7 @@
     "node": ">=10.10.0"
   },
   "devDependencies": {
+    "chokidar": "^3.1.1",
     "standard": "^14.3.1",
     "standardjs": "^1.0.0-alpha"
   },

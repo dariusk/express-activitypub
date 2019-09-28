@@ -3,3 +3,5 @@ node_modules/
 config.json
 certs/
 .vscode
+dump/
+logs/

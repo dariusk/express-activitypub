@@ -2,21 +2,40 @@
 const express = require('express')
 const router = express.Router()
 const pub = require('../pub')
+const net = require('../net')
 
-router.get('/:name', async function (req, res) {
+router.get('/:name', net.validators.jsonld, function (req, res) {
   const name = req.params.name
   if (!name) {
     return res.status(400).send('Bad request.')
-  } else {
-    const user = await pub.actor.getOrCreateActor(name)
-    if (user) {
-      return res.json(pub.utils.toJSONLD(user))
-    }
-    return res.status(404).send('Person not found')
   }
+  pub.actor.getOrCreateActor(name)
+    .then(group => {
+      return res.json(pub.utils.toJSONLD(group))
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).send(`Error creating group ${name}`)
+    })
+})
+// HTML version
+router.get('/:name', function (req, res) {
+  const name = req.params.name
+  if (!name) {
+    return res.status(400).send('Bad request.')
+  }
+  pub.actor.getOrCreateActor(name)
+    .then(group => {
+      const groupAcct = `${group.preferredUsername}@${req.app.get('domain')}`
+      return res.render('group.html', { group, groupAcct })
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).send(`Error creating group ${name}`)
+    })
 })
 
-router.get('/:name/followers', function (req, res) {
+router.get('/:name/followers', net.validators.jsonld, function (req, res) {
   const name = req.params.name
   if (!name) {
     return res.status(400).send('Bad request.')

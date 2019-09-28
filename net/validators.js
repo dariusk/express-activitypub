@@ -1,13 +1,29 @@
 const pub = require('../pub')
 
-module.exports.activity = function activity (req, res, next) {
+module.exports = {
+  activity,
+  jsonld,
+  outboxActivity
+}
+
+function activity (req, res, next) {
   if (!pub.utils.validateActivity(req.body)) {
     return res.status(400).send('Invalid activity')
   }
   next()
 }
 
-module.exports.outboxActivity = function outboxActivity (req, res, next) {
+function jsonld (req, res, next) {
+  if (req.method === 'GET' && pub.consts.jsonldTypes.includes(req.get('Accept'))) {
+    return next()
+  }
+  if (req.method === 'POST' && pub.consts.jsonldTypes.includes(req.get('Content-Type'))) {
+    return next()
+  }
+  next('route')
+}
+
+function outboxActivity (req, res, next) {
   if (!pub.utils.validateActivity(req.body)) {
     if (!pub.utils.validateObject(req.body)) {
       return res.status(400).send('Invalid activity')

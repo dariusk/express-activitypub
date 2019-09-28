@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>{{ group.preferredUsername }} group</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body {font-family: "Lato", sans-serif}
+.mySlides {display: none}
+</style>
+<script>
+    function doFollow (evt) {
+      let user, acct, username, domain
+      evt.preventDefault();
+      document.getElementById('username-error').classList.add('w3-hide')
+      document.getElementById('finger-error').classList.add('w3-hide')
+      try {
+        user = document.getElementById('handle').value
+        ;[acct, username, domain] = /@?([^@]+)@(.+)/.exec(user)
+      } catch (ignore) {
+        document.getElementById('username-error').classList.remove('w3-hide')
+        return
+      }
+      window.fetch(`https://${domain}/.well-known/webfinger?resource=acct:${acct}`, {
+        method: 'get',
+        mode: 'cors'
+      })
+        .then(res => res.json())
+        .then(json => {
+          const link = json.links.find(l => l.rel === 'http://ostatus.org/schema/1.0/subscribe')
+          window.location.href = link.template.replace('{uri}', '{{ groupAcct }}')
+        })
+        .catch(err => {
+          console.log(err);
+          document.getElementById('finger-error').classList.remove('w3-hide')
+        })
+    }
+</script>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+    <div class="w3-bar w3-black w3-card">&nbsp;
+    </div>
+  </div>
+  
+  <!-- Navbar on small screens (remove the onclick attribute if you want the navbar to always show on top of the content when clicking on the links) -->
+  <div id="navDemo" class="w3-bar-block w3-black w3-hide w3-hide-large w3-hide-medium w3-top" style="margin-top:46px">
+      &nbsp;
+  </div>
+<!-- Page content -->
+<div class="w3-content" style="max-width:2000px;margin-top:46px">
+
+
+  <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="band">
+    <h2 class="w3-wide">{{ group.preferredUsername }}</h2>
+    <p class="w3-opacity"><i>{{ group.summary }}</i></p>
+    <p class="w3-left-align">To join {{ group.preferredUsername }}, enter your handle below and you'll be
+      redirected back to this group's profile in your app where you can follow it.</p>
+    <form class="w3-container">
+      <label>Your account</label>
+      <input id="handle" class="w3-input w3-center" placeholder="user@example.com" type="text">
+      <button class="w3-btn w3-cyan w3-block w3-margin-top" onclick="doFollow(event)">Procced to follow</button>
+    </form> 
+    <div id="username-error" class="w3-hide w3-panel w3-pale-red w3-display-container w3-border">
+        <span onclick="this.parentElement.classList.add('w3-hide')" class="w3-button w3-large w3-display-topright">×</span>
+        <h3>Double check that username</h3>
+        <p>e.g. you@yourhost.com</p>
+    </div>
+    <div id="finger-error" class="w3-hide w3-panel w3-pale-red w3-display-container w3-border">
+        <span onclick="this.parentElement.classList.add('w3-hide')" class="w3-button w3-large w3-display-topright">×</span>
+        <h3>Oops</h3>
+        <p>Couldn't connect with your host.</p>
+    </div>
+  </div>
+
+  <!-- The Tour Section -->
+  <!-- <div class="w3-black" id="tour">
+    <div class="w3-container w3-content w3-padding-64" style="max-width:800px">
+      <h2 class="w3-wide w3-center">Recent group posts</h2>
+  </div> -->
+
+<!-- End Page Content -->
+</div>
+
+<!-- Footer -->
+<footer class="w3-container w3-padding-64 w3-center w3-opacity w3-light-grey w3-xlarge">
+  <a href="https://github.com/wmurphyrd/guppe"><i class="fa fa-github w3-hover-opacity"></i></a>
+</footer>
+
+</body>
+</html>
