@@ -39,7 +39,11 @@ function createLocalActor (name, type) {
       preferredUsername: name,
       name: `${name} group`,
       summary: `I'm a group about ${name}. Follow me to get all the group posts. Tag me to share with the group. Create other groups by searching for or tagging @yourGroupName@${config.DOMAIN}`,
-      icon: `https://${config.DOMAIN}/f/guppe.png`,
+      icon: {
+        type: 'Image',
+        mediaType: 'image/jpeg',
+        url: `https://${config.DOMAIN}/f/guppe.png`
+      },
       publicKey: {
         id: `${actorBase}#main-key`,
         owner: `${actorBase}`,
