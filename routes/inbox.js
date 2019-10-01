@@ -42,7 +42,7 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
       break
     case 'Undo':
       pub.activity.undo(req.body.object, req.body.actor)
-        .catch(err => console.log(err))
+        .catch(err => console.log(err.message))
       break
   }
   const tasks = []
@@ -54,7 +54,7 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
   }
   Promise.all(tasks).then(() => res.status(200).send())
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       res.status(500).send()
     })
 })
@@ -68,7 +68,7 @@ router.get('/', function (req, res) {
     .toArray()
     .then(stream => res.json(pub.utils.arrayToCollection(stream, true)))
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       return res.status(500).send()
     })
 })

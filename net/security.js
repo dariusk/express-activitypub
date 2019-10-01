@@ -35,7 +35,7 @@ async function verifySignature (req, res, next) {
     }
     next()
   } catch (err) {
-    console.log('error during signature verification', err)
+    console.log('error during signature verification', err.message)
     return res.status(500).send()
   }
 }

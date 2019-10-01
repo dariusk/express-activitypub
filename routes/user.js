@@ -15,7 +15,7 @@ router.get('/:name', net.validators.jsonld, function (req, res) {
       return res.json(pub.utils.toJSONLD(group))
     })
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       res.status(500).send(`Error creating group ${name}`)
     })
 })
@@ -32,7 +32,7 @@ router.get('/:name', function (req, res) {
       return res.render('group.html', { group, groupAcct })
     })
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       res.status(500).send(`Error creating group ${name}`)
     })
 })
@@ -55,7 +55,7 @@ router.get('/:name/followers', net.validators.jsonld, function (req, res) {
       return res.json(pub.utils.arrayToCollection(followers))
     })
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       return res.status(500).send()
     })
 })

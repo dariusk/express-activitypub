@@ -17,7 +17,7 @@ router.get('/:name', function (req, res) {
         return res.status(404).send('Activity not found')
       })
       .catch(err => {
-        console.log(err)
+        console.log(err.message)
         res.status(500).send()
       })
   }

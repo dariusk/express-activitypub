@@ -42,7 +42,7 @@ function deliver (actor, activity, addresses) {
       body: pubUtils.toJSONLD(activity)
     })
       .then(result => console.log('delivery:', addr, result.statusCode))
-      .catch(err => console.log(err))
+      .catch(err => console.log(err.message))
   })
   return Promise.all(requests)
 }

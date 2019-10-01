@@ -11,7 +11,7 @@ router.post('/', net.security.auth, net.validators.outboxActivity, function (req
     })
     .then(() => res.status(200).send())
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       res.status(500).send()
     })
 })
@@ -25,7 +25,7 @@ router.get('/', function (req, res) {
     .toArray()
     .then(stream => res.json(pub.utils.arrayToCollection(stream, true)))
     .catch(err => {
-      console.log(err)
+      console.log(err.message)
       return res.status(500).send()
     })
 })
