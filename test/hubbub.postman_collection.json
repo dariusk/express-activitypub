@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "d74660b4-3b37-43d8-a7f9-a8a5ead81e6e",
+		"name": "hubbub",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get dummy inbox",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost/u/dummy/inbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"inbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get dummy outbox",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost/u/dummy/outbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"outbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get dummy followers",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost/u/dummy/followers",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"followers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get dummy actor",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://localhost/u/dummy",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post outbox activity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"@context\": \"https://www.w3.org/ns/activitystreams\",\r\n    \"id\": \"https://localhost/o/dfg4572\",\r\n    \"type\": \"Note\",\r\n    \"attributedTo\": \"https://localhost/u/dummy\",\r\n    \"content\": \"Build and activity from an object3\",\r\n    \"published\": \"2015-02-10T15:04:55Z\",\r\n    \"to\": [\"https://localhost/u/dummy2\"],\r\n    \"cc\": [\"https://localhost/u/dummy/followers\",\r\n           \"https://www.w3.org/ns/activitystreams#Public\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/u/dummy/outbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"outbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post inbox",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"@context\": \"https://www.w3.org/ns/activitystreams\",\r\n  \"type\": \"Create\",\r\n  \"id\": \"https://example.net/~mallory/87374\",\r\n  \"actor\": \"https://example.net/~mallory\",\r\n  \"object\": {\r\n    \"id\": \"https://example.com/~mallory/note/72\",\r\n    \"type\": \"Note\",\r\n    \"attributedTo\": \"https://example.net/~mallory\",\r\n    \"content\": \"This is a note\",\r\n    \"published\": \"2015-02-10T15:04:55Z\",\r\n    \"to\": [\"https://example.org/~john/\"],\r\n    \"cc\": [\"https://example.com/~erik/followers\",\r\n           \"https://www.w3.org/ns/activitystreams#Public\"]\r\n  },\r\n  \"published\": \"2015-02-10T15:04:55Z\",\r\n  \"to\": [\"https://example.org/~john/\"],\r\n  \"cc\": [\"https://example.com/~erik/followers\",\r\n         \"https://www.w3.org/ns/activitystreams#Public\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/u/dummy/inbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"inbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post inbox Follow",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"@context\": \"https://www.w3.org/ns/activitystreams\",\r\n  \"type\": \"Follow\",\r\n  \"id\": \"https://localhost/o/abcd1234\",\r\n  \"actor\": \"https://localhost/u/followdummy\",\r\n  \"object\": {\r\n    \"id\": \"https://localhost/u/dummy\"\r\n  },\r\n  \"published\": \"2015-02-10T15:04:55Z\",\r\n  \"to\": [\"https://localhost/u/dummy\"],\r\n  \"cc\": [\r\n         \"https://www.w3.org/ns/activitystreams#Public\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/u/dummy/inbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"inbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post inbox undo",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/activity+json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"@context\": \"https://www.w3.org/ns/activitystreams\",\r\n  \"type\": \"Undo\",\r\n  \"id\": \"https://localhost/s/abcd1234fdgdfj\",\r\n  \"actor\": \"https://localhost/u/followdummy\",\r\n  \"object\": \"https://localhost/o/abcd1234\",\r\n  \"published\": \"2015-02-10T15:04:55Z\",\r\n  \"to\": [\"https://localhost/u/dummy\"],\r\n  \"cc\": [\r\n         \"https://www.w3.org/ns/activitystreams#Public\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/u/dummy/inbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"inbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "webfinger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://localhost/.well-known/webfinger?resource=acct:dummy@localhost",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						".well-known",
+						"webfinger"
+					],
+					"query": [
+						{
+							"key": "resource",
+							"value": "acct:dummy@localhost"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post outbox activity complete",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/activity+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"@context\": \"https://www.w3.org/ns/activitystreams\",\r\n  \"type\": \"Create\",\r\n  \"id\": \"https://example.net/~mallory/87374\",\r\n  \"actor\": \"https://localhost/u/dummy\",\r\n  \"object\": {\r\n    \"id\": \"https://example.com/~mallory/note/72\",\r\n    \"type\": \"Note\",\r\n    \"attributedTo\": \"https://localhost/u/dummy\",\r\n    \"content\": \"This is an outbox note\",\r\n    \"published\": \"2015-02-10T15:04:55Z\",\r\n    \"to\": [\"https://example.org/~john/\"],\r\n    \"cc\": [\"https://example.com/~erik/followers\",\r\n           \"https://www.w3.org/ns/activitystreams#Public\"]\r\n  },\r\n  \"published\": \"2015-02-10T15:04:55Z\",\r\n  \"to\": [\"https://example.org/~john/\"],\r\n  \"cc\": [\"https://example.com/~erik/followers\",\r\n         \"https://www.w3.org/ns/activitystreams#Public\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://localhost/u/dummy/outbox",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"path": [
+						"u",
+						"dummy",
+						"outbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Guppe get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	]
+}
