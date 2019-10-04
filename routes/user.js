@@ -19,23 +19,6 @@ router.get('/:name', net.validators.jsonld, function (req, res) {
       res.status(500).send(`Error creating group ${name}`)
     })
 })
-// HTML version
-router.get('/:name', function (req, res) {
-  const name = req.params.name
-  if (!name) {
-    return res.status(400).send('Bad request.')
-  }
-  console.log('User html ', name)
-  pub.actor.getOrCreateActor(name)
-    .then(group => {
-      const groupAcct = `${group.preferredUsername}@${req.app.get('domain')}`
-      return res.render('group.html', { group, groupAcct })
-    })
-    .catch(err => {
-      console.log(err.message)
-      res.status(500).send(`Error creating group ${name}`)
-    })
-})
 
 router.get('/:name/followers', net.validators.jsonld, function (req, res) {
   const name = req.params.name

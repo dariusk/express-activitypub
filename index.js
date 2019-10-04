@@ -7,6 +7,7 @@ const cors = require('cors')
 const https = require('https')
 const nunjucks = require('nunjucks')
 const morgan = require('morgan')
+const history = require('connect-history-api-fallback')
 
 const routes = require('./routes')
 const pub = require('./pub')
@@ -33,6 +34,9 @@ app.set('domain', DOMAIN)
 app.set('port', process.env.PORT || PORT)
 app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS)
 app.use(morgan('combined'))
+app.use(history({
+  index: '/web/index.html'
+}))
 app.use(bodyParser.json({
   type: pub.consts.jsonldTypes
 })) // support json encoded bodies
@@ -49,13 +53,12 @@ app.use('/o', net.validators.jsonld, cors(), routes.object)
 app.use('/s', net.validators.jsonld, cors(), routes.stream)
 app.use('/u/:name/inbox', net.validators.jsonld, routes.inbox)
 app.use('/u/:name/outbox', net.validators.jsonld, routes.outbox)
-
-// dual use routes
 app.use('/u', cors(), routes.user)
 
 // html/static routes
 app.use('/', express.static('public/www'))
 app.use('/f', express.static('public/files'))
+app.use('/web', express.static('web/dist'))
 
 client.connect({ useNewUrlParser: true })
   .then(() => {
