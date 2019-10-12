@@ -1,7 +1,13 @@
 <template>
   <div class="w3-card">
-    <label>{{ post.actor }}</label>
-    <p>{{ post.content }}</p>
+    <div class="actor">
+      <img crossorigin="anonymous" :src="actorIconUrl">
+      <label>
+        {{ actor.preferredUsername }}
+        <span class="muted">@{{ actorHost }}</span>
+      </label>
+    </div>
+    <p v-html="post.content"></p>
   </div>
 </template>
 
@@ -15,26 +21,63 @@ export default {
   },
   data () {
     return {
-      post: {}
+      post: {},
+      actor: {},
+      isError: false,
     }
   },
-  created () {
-    if (typeof this.activity.object === 'string') {
-      window.fetch(`/o/${encodeURIComponent(this.activity.object)}`, {
+  computed: {
+    actorIconUrl() {
+      return this.actor.icon && this.actor.icon.url
+    },
+    actorHost() {
+      try {
+        const id = new URL(this.actor.id)
+        return id.host
+      } catch (ignore) {
+        return ''
+      }
+    }
+  },
+  methods: {
+    resolveObject(idOrObject) {
+      if (typeof idOrObject !== 'string') {
+        return new Promise((resolve) => resolve(idOrObject))
+      }
+      return window.fetch(`/o/${encodeURIComponent(idOrObject)}`, {
         method: 'get',
         headers: {
           accept: 'application/activity+json'
         }
-      }).then(res => res.json())
-        .then(post => {
-          this.post = post
-        })
+      })
+        .then(res => res.json())
         .catch(err => {
-          this.post.content = err.message
+          this.isError = true
+          console.log(err.message)
         })
-    } else {
-      this.post = this.activity.object
     }
+  },
+  created () {
+    this.resolveObject(this.activity.object)
+      .then(object => {
+        this.post = object
+        return this.resolveObject(this.post.attributedTo)
+      })
+      .then(actor => { this.actor = actor })
   }
 }
 </script>
+
+<style scoped>
+  .actor img {
+    width: 32px;
+    height: 32px;
+  }
+  .actor label {
+    font-weight: bold;
+  }
+  .actor label .muted {
+    font-weight: normal;
+    color: gray;
+  }
+</style>
