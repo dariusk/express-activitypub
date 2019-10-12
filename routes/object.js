@@ -1,15 +1,16 @@
 'use strict'
 const express = require('express')
 const router = express.Router()
-const store = require('../store')
 const pub = require('../pub')
 
 router.get('/:name', function (req, res) {
-  const name = req.params.name
-  if (!name) {
+  const id = req.params.name
+  if (!id) {
     return res.status(400).send('Bad request.')
   } else {
-    store.object.get(pub.utils.objectIdToIRI(name))
+    // TODO: don't attempt to resolve remote ids if request is cross-origin
+    // (to prevent abuse of guppe server to DDoS other servers)
+    pub.object.resolve(id)
       .then(obj => {
         if (obj) {
           return res.json(pub.utils.toJSONLD(obj))

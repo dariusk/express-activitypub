@@ -5,7 +5,6 @@ const fs = require('fs')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const https = require('https')
-const nunjucks = require('nunjucks')
 const morgan = require('morgan')
 const history = require('connect-history-api-fallback')
 
@@ -16,11 +15,6 @@ const net = require('./net')
 const { DOMAIN, KEY_PATH, CERT_PATH, CA_PATH, PORT, PORT_HTTPS, DB_URL, DB_NAME } = require('./config.json')
 
 const app = express()
-nunjucks.configure('templates', {
-  autoescape: true,
-  express: app,
-  watch: app.get('env') === 'development'
-})
 
 const client = new MongoClient(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
 
@@ -56,7 +50,6 @@ app.use('/u/:name/outbox', net.validators.jsonld, routes.outbox)
 app.use('/u', cors(), routes.user)
 
 // html/static routes
-app.use('/', express.static('public/www'))
 app.use('/f', express.static('public/files'))
 app.use('/web', express.static('web/dist'))
 
