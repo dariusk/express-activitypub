@@ -1,13 +1,15 @@
 <template>
-  <div class="w3-card">
-    <div class="actor">
-      <img crossorigin="anonymous" :src="actorIconUrl">
+  <div class="w3-card w3-margin-bottom">
+    <div class="w3-container w3-left-align">
+      <img class="icon" crossorigin="anonymous" :src="actorIconUrl">
       <label>
-        {{ actor.preferredUsername }}
-        <span class="muted">@{{ actorHost }}</span>
+        <b>{{ actor.preferredUsername }}</b>
+        <span class="w3-text-grey">@{{ actorHost }}</span>
       </label>
     </div>
-    <p v-html="post.content"></p>
+    <div class="w3-container">
+      <p v-html="post.content"></p>
+    </div>
   </div>
 </template>
 
@@ -69,15 +71,8 @@ export default {
 </script>
 
 <style scoped>
-  .actor img {
+  .icon {
     width: 32px;
     height: 32px;
-  }
-  .actor label {
-    font-weight: bold;
-  }
-  .actor label .muted {
-    font-weight: normal;
-    color: gray;
   }
 </style>
