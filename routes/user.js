@@ -4,6 +4,30 @@ const router = express.Router()
 const pub = require('../pub')
 const net = require('../net')
 
+// list active groups
+router.get('/', net.validators.jsonld, function (req, res) {
+  const db = req.app.get('db')
+  db.collection('streams')
+    .aggregate([
+      { $limit: 10000 }, // don't traverse the entire history
+      { $match: { type: 'Announce' } },
+      { $group: { _id: '$actor', postCount: { $sum: 1 } } },
+      { $lookup: { from: 'objects', localField: '_id', foreignField: 'id', as: 'actor' } },
+      // merge joined actor up
+      { $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$actor', 0] }, '$$ROOT'] } } },
+      { $project: { postCount: 1, preferredUsername: 1 } }
+    ])
+    .sort({ postCount: -1 })
+    .limit(Number.parseInt(req.query.n) || 20)
+    .toArray()
+    .then(groups => { console.log(JSON.stringify(groups)); return groups })
+    .then(groups => res.json(groups))
+    .catch(err => {
+      console.log(err.message)
+      return res.status(500).send()
+    })
+})
+
 router.get('/:name', net.validators.jsonld, function (req, res) {
   const name = req.params.name
   if (!name) {

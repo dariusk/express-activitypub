@@ -1,40 +1,75 @@
 <template>
   <div class="w3-container">
-    <img alt="Guppe logo" src="/f/guppe.png">
-    <h1>Guppe Groups</h1>
+    <div class="w3-center">
+      <img alt="Guppe logo" src="/f/guppe.png">
+    </div>
+    <h1 class="w3-center">Guppe Groups</h1>
     <p>
-Guppe brings social groups to the fediverse &mdash; making it easy to connect and meet new
-people based on shared
-interests without the maniuplation of your attention to maximize ad revenue nor the
-walled garden lock-in of capitalist social media.
+      Guppe brings social groups to the fediverse &mdash; making it easy to connect and meet new
+      people based on shared
+      interests without the maniuplation of your attention to maximize ad revenue nor the
+      walled garden lock-in of capitalist social media.
     </p>
-    <h2>How does Guppe work?</h2>
+    <h2 class="w3-center">How does Guppe work?</h2>
+    <p>
+      Guppe groups look like regular users you can interact with using your existing account on any
+      ActivityPub service, but they automatically share anything you send them with all of their followers.
+    </p>
     <ol>
-      <li>Follow a user on @gup.pe to join that group</li>
-      <li>Mention a user on @gup.pe to share a post with everyone in the group</li>
-      <li>New groups are created on demand, just search for @YourGroupNameHere@gup.pe and it will show up</li>
-      <li>Visit a @gup.pe user profile to see the group history</li>
+      <li>Follow a group on @gup.pe to join that group</li>
+      <li>Mention a group on @gup.pe to share a post with everyone in the group</li>
+      <li>New groups are created on demand, just search for or mention @YourGroupNameHere@gup.pe and it will show up</li>
+      <li>Visit a @gup.pe group profile to see the group history</li>
     </ol>
-    <p>
-A Guppe Group has its own account and profile. 
-This server-2-server ActivityPub implementation adds decentralized,
-federaded "groups" support across all ActivityPub compliant social media networks.
-Users join groups by following group-type actors on Guppe servers and contribute t
-groups by mentioning those same actors in a post. Guppe group actors will
-automatically forward posts they receive to all group members so that everyone in the
-group sees any post made to the group. Guppe group actors' profiles (e.g. outboxes) also
-serve as a group discussion history.
-    </p>
+    <h2 class="w3-center">Active Groups</h2>
+    <div class="profile-grid w3-margin-bottom w3-mobile">
+      <div v-for="group of groups" class="w3-card" :key="group._id">
+        <Profile :name="group.preferredUsername" :post-limit="3"
+                class="profile"/>
+        <router-link :to="`/u/${group.preferredUsername}`">More...</router-link>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-// import HelloWorld from '@/components/HelloWorld.vue'
+import Profile from '@/views/Profile.vue'
 
 export default {
   name: 'home',
   components: {
+    Profile
+  },
+  data() {
+    return {
+      groups: [],
+      error: null
+    }
+  },
+  created () {
+    window.fetch(`/u/`, {
+      method: 'get',
+      headers: {
+        accept: 'application/json'
+      }
+    }).then(res => res.json())
+      .then(json => {
+        this.groups = json
+      })
+      .catch(err => this.error = err.message)
   }
 }
 </script>
+
+<style scoped>
+  .profile {
+    width: 300px;
+  }
+  .profile-grid {
+    display: grid;
+    grid-gap: 15px;
+    grid-template-columns: auto auto;
+    justify-content: space-evenly;
+  }
+</style>

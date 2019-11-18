@@ -29,7 +29,11 @@ app.set('port', process.env.PORT || PORT)
 app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS)
 app.use(morgan('combined'))
 app.use(history({
-  index: '/web/index.html'
+  index: '/web/index.html',
+  rewrites: [
+    // do not redirect webfinger et c.
+    { from: /^\/\.well-known\//, to: context => context.request.originalUrl }
+  ]
 }))
 app.use(bodyParser.json({
   type: pub.consts.jsonldTypes

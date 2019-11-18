@@ -1,6 +1,6 @@
 <template>
   <div class="w3-container w3-content w3-center w3-padding-32">
-    <img class="profile-main" :src="groupProfileSrc">
+    <img class="w3-image" :src="groupProfileSrc">
     <h2 class="w3-wide">{{ actor.preferredUsername }}</h2>
     <p class="w3-opacity"><i>{{ actor.summary }}</i></p>
     <p class="w3-left-align">To join {{ actor.preferredUsername }}, enter your handle below and you'll be
@@ -43,6 +43,10 @@ export default {
     name: {
       type: String,
       required: true,
+    },
+    postLimit: {
+      type: Number,
+      default: 20
     }
   },
   data () {
@@ -124,6 +128,7 @@ export default {
       .then(outbox => {
         this.stream = outbox.orderedItems // || fetch page
           .filter(act => act.type === 'Announce')
+          .slice(0, this.postLimit)
       })
       .catch(err => this.error = err.message)
   }
