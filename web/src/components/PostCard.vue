@@ -1,7 +1,8 @@
 <template>
   <div class="w3-card w3-margin-bottom">
     <div class="w3-container w3-left-align">
-      <img class="icon" crossorigin="anonymous" :src="actorIconUrl">
+      <!-- remotes aren't serving icons with crossorigin, would need fetch serverside and cache -->
+      <!-- <img class="icon" crossorigin="anonymous" :src="actorIconUrl"> -->
       <label>
         <b>{{ actor.preferredUsername }}</b>
         <span class="w3-text-grey">@{{ actorHost }}</span>
@@ -74,5 +75,14 @@ export default {
   .icon {
     width: 32px;
     height: 32px;
+  }
+</style>
+
+<style>
+  .invisible {
+    display: none;
+  }
+  .ellipsis::after {
+    content: '\2026'
   }
 </style>

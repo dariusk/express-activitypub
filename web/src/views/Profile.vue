@@ -1,8 +1,6 @@
 <template>
   <div class="w3-container w3-content w3-center w3-padding-32">
-    <img class="w3-image" :src="groupProfileSrc">
-    <h2 class="w3-wide">{{ actor.preferredUsername }}</h2>
-    <p class="w3-opacity"><i>{{ actor.summary }}</i></p>
+    <profile-summary :actor="actor"/>
     <p class="w3-left-align">To join {{ actor.preferredUsername }}, enter your handle below and you'll be
       redirected back to this group's profile in your app where you can follow it.</p>
     <form class="w3-container">
@@ -35,9 +33,12 @@
 
 <script>
 import PostCard from '@/components/PostCard.vue'
+import ProfileSummary from '@/components/ProfileSummary.vue'
+
 export default {
   components: {
-    PostCard
+    PostCard,
+    ProfileSummary
   },
   props: {
     name: {

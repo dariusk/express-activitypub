@@ -23,10 +23,9 @@
     </ol>
     <h2 class="w3-center">Active Groups</h2>
     <div class="profile-grid w3-margin-bottom w3-mobile">
-      <div v-for="group of groups" class="w3-card" :key="group._id">
-        <Profile :name="group.preferredUsername" :post-limit="3"
-                class="profile"/>
-        <router-link :to="`/u/${group.preferredUsername}`">More...</router-link>
+      <div v-for="group of groups" class="w3-card w3-container w3-section" :key="group._id">
+        <profile-summary :actor="group" class="profile"/>
+        <router-link :to="`/u/${group.preferredUsername}`">Group profile...</router-link>
       </div>
     </div>
 
@@ -34,12 +33,12 @@
 </template>
 
 <script>
-import Profile from '@/views/Profile.vue'
+import ProfileSummary from '@/components/ProfileSummary.vue'
 
 export default {
   name: 'home',
   components: {
-    Profile
+    ProfileSummary
   },
   data() {
     return {
@@ -67,9 +66,15 @@ export default {
     width: 300px;
   }
   .profile-grid {
-    display: grid;
-    grid-gap: 15px;
-    grid-template-columns: auto auto;
-    justify-content: space-evenly;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-content: space-between;
+  }
+</style>
+
+<style>
+  .profile-image {
+    width: 75px;
   }
 </style>
