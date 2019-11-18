@@ -1,17 +1,17 @@
 {
   "name": "guppe",
   "version": "0.0.1",
-  "description": "Decentralized social groups with ActivityPub, NodeJS, Express, and Mongodb",
+  "description": "Decentralized social groups with ActivityPub, NodeJS, Express, Vue, and Mongodb",
   "main": "index.js",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "connect-history-api-fallback": "^1.6.0",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "express-basic-auth": "^1.1.5",
     "http-signature": "github:wmurphyrd/node-http-signature#9c02eeb",
     "mongodb": "^3.3.2",
     "morgan": "^1.9.1",
-    "nunjucks": "^3.2.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
   },
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "chokidar": "^3.1.1",
+    "nodemon": "^1.19.3",
     "standard": "^14.3.1",
     "standardjs": "^1.0.0-alpha"
   },

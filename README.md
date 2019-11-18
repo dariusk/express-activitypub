@@ -6,7 +6,7 @@ This server-2-server ActivityPub implementation adds decentralized, federaded "g
 
 ## Tech stack
 
-Node.js, ExpressJS, MongoDB
+MEVN: MongoDD, ExpressJS, Vue, NodeJS
 
 ## Installation
 

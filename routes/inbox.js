@@ -31,11 +31,11 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
       toDo.saveObject = true
       pub.actor.getOrCreateActor(req.user, true)
         .then(user => {
-          const to = [user.followers]
-          const cc = [
-            pub.utils.actorFromActivity(req.body),
+          const to = [
+            user.followers,
             'https://www.w3.org/ns/activitystreams#Public'
           ]
+          const cc = [pub.utils.actorFromActivity(req.body)]
           const announce = pub.activity.build('Announce', user.id, req.body.object.id, to, cc)
           return pub.activity.addToOutbox(user, announce)
         }).catch(e => console.log(e))

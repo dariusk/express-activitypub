@@ -10,11 +10,20 @@ module.exports = {
 // find object in local DB or fetch from origin server
 async function resolveObject (id) {
   let object
+  let parseCheck
   if (pubUtils.validateObject(id)) {
     // already an object
     object = id
   } else {
     // resolve id to local object
+    try {
+      // check if full IRI id or remote id
+      parseCheck = new URL(id)
+    } catch (ignore) {}
+    if (!parseCheck) {
+      // convert bare ObjectId to local IRI id
+      id = pubUtils.objectIdToIRI(id)
+    }
     object = await store.object.get(id)
     if (object) {
       return object
