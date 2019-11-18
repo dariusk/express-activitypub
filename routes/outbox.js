@@ -19,7 +19,7 @@ router.post('/', net.security.auth, net.validators.outboxActivity, function (req
 router.get('/', function (req, res) {
   const db = req.app.get('db')
   db.collection('streams')
-    .find({ actor: pub.utils.usernameToIRI(req.user) })
+    .find({ actor: pub.utils.usernameToIRI(req.user), type: { $in: ['Announce', 'Create'] } })
     .sort({ _id: -1 })
     .project({ _id: 0, _meta: 0, 'object._id': 0, 'object.@context': 0, 'object._meta': 0 })
     .toArray()

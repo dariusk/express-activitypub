@@ -15,7 +15,7 @@ router.get('/', net.validators.jsonld, function (req, res) {
       { $lookup: { from: 'objects', localField: '_id', foreignField: 'id', as: 'actor' } },
       // merge joined actor up
       { $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$actor', 0] }, '$$ROOT'] } } },
-      { $project: { postCount: 1, preferredUsername: 1 } }
+      { $project: { _id: 0, _meta: 0, actor: 0 } }
     ])
     .sort({ postCount: -1 })
     .limit(Number.parseInt(req.query.n) || 20)
