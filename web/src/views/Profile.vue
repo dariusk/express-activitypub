@@ -20,7 +20,7 @@
         <span @click.prevent="unreachable = false" class="w3-button w3-large w3-display-topright">×</span>
         <h3>Oops</h3>
         <p>Couldn't connect with your host.</p>
-        <p>You could try going back to your app and entering {{ groupHandle }} in the search instead</p>
+        <p>You could try going back to your app and entering @{{ groupHandle }} in the search instead</p>
     </div>
     <div class="w3-container w3-content w3-padding-64">
       <h2 class="w3-wide w3-center">Recent group posts</h2>
@@ -68,7 +68,7 @@ export default {
     groupHandle() {
       if (this.actor.id && this.actor.preferredUsername) {
         const url = new window.URL(this.actor.id)
-        return `@${this.actor.preferredUsername.toLowerCase()}@${url.host}`
+        return `${this.actor.preferredUsername.toLowerCase()}@${url.host}`
       }
       return ''
     }
@@ -95,7 +95,7 @@ export default {
         .then(res => res.json())
         .then(json => {
           const link = json.links.find(l => l.rel === 'http://ostatus.org/schema/1.0/subscribe')
-          window.location.href = link.template.replace('{uri}', '{{ groupAcct }}')
+          window.location.href = link.template.replace('{uri}', this.groupHandle)
         })
         .catch(err => {
           console.log(err)
