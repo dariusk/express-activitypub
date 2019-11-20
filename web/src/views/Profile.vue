@@ -85,7 +85,7 @@ export default {
         return
       }
       this.fetchingRemote = true;
-      window.fetch(`https://${domain}/.well-known/webfinger?resource=acct:${acct}`, {
+      window.fetch(`https://${domain}/.well-known/webfinger?resource=acct:${username}@${domain}`, {
         method: 'get',
         mode: 'cors',
         headers: {
