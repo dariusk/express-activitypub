@@ -67,4 +67,8 @@ export default {
   .fas {
     margin-right: 8px;
   }
+  h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 </style>
