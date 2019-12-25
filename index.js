@@ -57,6 +57,12 @@ app.use('/u', cors(), routes.user)
 app.use('/f', express.static('public/files'))
 app.use('/web', express.static('web/dist'))
 
+// error logging
+app.use(function (err, req, res, next) {
+  console.error(err.message, req.body, err.stack)
+  res.status(500).send('An error occurred while processing the request')
+})
+
 client.connect({ useNewUrlParser: true })
   .then(() => {
     console.log('Connected successfully to db')
