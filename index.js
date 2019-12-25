@@ -27,7 +27,7 @@ const sslOptions = {
 app.set('domain', DOMAIN)
 app.set('port', process.env.PORT || PORT)
 app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS)
-app.use(morgan('combined'))
+app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status Accepts ":req[accept]" ":referrer" ":user-agent"'))
 app.use(history({
   index: '/web/index.html',
   rewrites: [
