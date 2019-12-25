@@ -35,7 +35,11 @@ async function verifySignature (req, res, next) {
     }
     next()
   } catch (err) {
-    console.log('error during signature verification', err.message)
+    if (req.body.type === 'Delete' && err.mesage.startsWith('410')) {
+      // user delete message that can't be verified because we don't have the user cached
+      res.status(200).send()
+    }
+    console.log('error during signature verification', err.message, req.body)
     return res.status(500).send()
   }
 }
