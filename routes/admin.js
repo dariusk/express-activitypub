@@ -68,6 +68,7 @@ router.post('/create', function (req, res) {
     catch(e) {
       res.status(200).json({error: e});
     }
+  });
 });
 
 module.exports = router;
