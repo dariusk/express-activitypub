@@ -2,18 +2,12 @@ const path = require('path')
 const express = require('express')
 const MongoClient = require('mongodb').MongoClient
 const fs = require('fs')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const AutoEncrypt = require('@small-tech/auto-encrypt')
 const https = require('https')
 const morgan = require('morgan')
 const history = require('connect-history-api-fallback')
 const { onShutdown } = require('node-graceful-shutdown')
+const ActivitypubExpress = require('activitypub-express')
 
-const routes = require('./routes')
-const pub = require('./pub')
-const store = require('./store')
-const net = require('./net')
 const { DOMAIN, KEY_PATH, CERT_PATH, CA_PATH, PORT, PORT_HTTPS, DB_URL, DB_NAME } = require('./config.json')
 
 const app = express()
@@ -21,15 +15,132 @@ const app = express()
 const client = new MongoClient(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
 
 const sslOptions = {
-  key: fs.readFileSync(path.join(__dirname, KEY_PATH)),
-  cert: fs.readFileSync(path.join(__dirname, CERT_PATH)),
-  ca: CA_PATH ? fs.readFileSync(path.join(__dirname, CA_PATH)) : undefined
+  key: KEY_PATH && fs.readFileSync(path.join(__dirname, KEY_PATH)),
+  cert: CERT_PATH && fs.readFileSync(path.join(__dirname, CERT_PATH)),
+  ca: CA_PATH && fs.readFileSync(path.join(__dirname, CA_PATH))
 }
+
+const icon = {
+  type: 'Image',
+  mediaType: 'image/jpeg',
+  url: `https://${DOMAIN}/f/guppe.png`
+}
+
+const routes = {
+  actor: '/u/:actor',
+  object: '/o/:id',
+  activity: '/s/:id',
+  inbox: '/u/:actor/inbox',
+  outbox: '/u/:actor/outbox',
+  followers: '/u/:actor/followers',
+  following: '/u/:actor/following',
+  liked: '/u/:actor/liked',
+  collections: '/u/:actor/c/:id',
+  blocked: '/u/:actor/blocked',
+  rejections: '/u/:actor/rejections',
+  rejected: '/u/:actor/rejected',
+  shares: '/s/:id/shares',
+  likes: '/s/:id/likes'
+}
+const apex = ActivitypubExpress({
+  domain: DOMAIN,
+  actorParam: 'actor',
+  objectParam: 'id',
+  itemsPerPage: 100,
+  routes
+})
 
 app.set('domain', DOMAIN)
 app.set('port', process.env.PORT || PORT)
 app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS)
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status Accepts ":req[accept]" ":referrer" ":user-agent"'))
+app.use(express.json({ type: apex.consts.jsonldTypes }), apex)
+
+// Guppe's magic: create new groups on demand whenever someone tries to access it
+async function getOrCreateActor (req, res, next) {
+  const apex = req.app.locals.apex
+  const actor = req.params[apex.actorParam]
+  const actorIRI = apex.utils.usernameToIRI(actor)
+  let actorObj
+  try {
+    actorObj = await apex.store.getObject(actorIRI)
+  } catch (err) { return next(err) }
+  if (!actorObj && actor.length <= 100) {
+    try {
+      const summary = `I'm a group about ${actor}. Follow me to get all the group posts. Tag me to share with the group. Create other groups by searching for or tagging @yourGroupName@${DOMAIN}`
+      actorObj = await apex.createActor(actor, `${actor} group`, summary, icon, 'Group')
+      await apex.store.saveObject(actorObj)
+    } catch (err) { return next(err) }
+    res.locals.apex.target = actorObj
+  } else if (actor.length > 100) {
+    res.locals.apex.status = 400
+    res.locals.apex.statusMessage = 'Group names are limited to 100 characters'
+  } else if (actorObj.type === 'Tombstone') {
+    res.locals.apex.status = 410
+  } else {
+    res.locals.apex.target = actorObj
+  }
+  next()
+}
+
+// define routes using prepacakged middleware collections
+app.route(routes.inbox)
+  .post(apex.net.inbox.post)
+  // no C2S at present
+  // .get(apex.net.inbox.get)
+app.route(routes.outbox)
+  .get(apex.net.outbox.get)
+  // no C2S at present
+  // .post(apex.net.outbox.post)
+
+// replace apex's target actor validator with our create on demand method
+app.get(routes.actor, apex.net.validators.jsonld, getOrCreateActor, apex.net.responders.target)
+app.get(routes.followers, apex.net.followers.get)
+app.get(routes.following, apex.net.following.get)
+app.get(routes.liked, apex.net.liked.get)
+app.get(routes.object, apex.net.object.get)
+app.get(routes.activity, apex.net.activityStream.get)
+app.get(routes.shares, apex.net.shares.get)
+app.get(routes.likes, apex.net.likes.get)
+
+app.get(
+  '/.well-known/webfinger',
+  apex.net.wellKnown.parseWebfinger,
+  // replace apex's target actor validator with our create on demand method
+  getOrCreateActor,
+  apex.net.wellKnown.respondWebfinger
+)
+
+app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
+  switch (activity.type.toLowerCase()) {
+    case 'create': {
+      // ignore forwarded messages that aren't directly adddressed to group
+      if (!activity.to?.includes(recipient.id)) {
+        return
+      }
+      const to = [
+        recipient.followers[0],
+        apex.consts.publicAddress
+      ]
+      const share = await apex.buildActivity('Announce', recipient.id, to, {
+        object: activity.id
+      })
+      apex.addToOutbox(recipient, share)
+      break
+    }
+    case 'follow': {
+      const accept = await apex.buildActivity('Accept', recipient.id, actor.id, {
+        object: activity.id
+      })
+      const { postTask: publishUpdatedFollowers } = await apex.acceptFollow(recipient, activity)
+      await apex.addToOutbox(recipient, accept)
+      return publishUpdatedFollowers()
+    }
+  }
+})
+
+/// Guppe web setup
+// html/static routes
 app.use(history({
   index: '/web/index.html',
   rewrites: [
@@ -37,64 +148,39 @@ app.use(history({
     { from: /^\/\.well-known\//, to: context => context.request.originalUrl }
   ]
 }))
-app.use(bodyParser.json({
-  type: pub.consts.jsonldTypes
-})) // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
-
-app.param('name', function (req, res, next, id) {
-  req.user = id
-  next()
-})
-
-// json only routes
-app.use('/.well-known/webfinger', cors(), routes.webfinger)
-app.use('/o', net.validators.jsonld, cors(), routes.object)
-app.use('/s', net.validators.jsonld, cors(), routes.stream)
-app.use('/u/:name/inbox', net.validators.jsonld, routes.inbox)
-app.use('/u/:name/outbox', net.validators.jsonld, routes.outbox)
-app.use('/u', cors(), routes.user)
-
-// html/static routes
 app.use('/f', express.static('public/files'))
 app.use('/web', express.static('web/dist'))
 
-// error logging
 app.use(function (err, req, res, next) {
   console.error(err.message, req.body, err.stack)
-  res.status(500).send('An error occurred while processing the request')
+  if (!res.headersSent) {
+    res.status(500).send('An error occurred while processing the request')
+  }
 })
-
-const server = process.env.NODE_ENV === 'production'
-  ? AutoEncrypt.https.createServer({ domains: ['gup.pe'] }, app)
-  : https.createServer(sslOptions, app)
 
 client.connect({ useNewUrlParser: true })
-  .then(() => {
-    console.log('Connected successfully to db')
-    const db = client.db(DB_NAME)
-    app.set('db', db)
-    store.connection.setDb(db)
-    return pub.actor.createLocalActor('dummy', 'Person')
-  })
-  .then(dummy => {
-    // shortcut to be able to sign GETs, will be factored out via activitypub-express
-    global.guppeSystemUser = dummy
-    return store.setup(DOMAIN, dummy)
-  })
-  .then(() => {
-    server.listen(app.get('port-https'), function () {
-      console.log('Guppe server listening on port ' + app.get('port-https'))
+  .then(async () => {
+    const { default: AutoEncrypt } = await import('@small-tech/auto-encrypt')
+    apex.store.db = client.db(DB_NAME)
+    await apex.store.setup()
+    apex.systemUser = await apex.store.getObject(apex.utils.usernameToIRI('system_service'), true)
+    if (!apex.systemUser) {
+      const systemUser = await apex.createActor('system_service', `${DOMAIN} system service`, `${DOMAIN} system service`, icon, 'Service')
+      await apex.store.saveObject(systemUser)
+      apex.systemUser = systemUser
+    }
+
+    const server = process.env.NODE_ENV === 'production'
+      ? AutoEncrypt.https.createServer({ domains: [DOMAIN] }, app)
+      : https.createServer(sslOptions, app)
+    server.listen(PORT_HTTPS, function () {
+      console.log('Guppe server listening on port ' + PORT_HTTPS)
+    })
+    onShutdown(async () => {
+      await client.close()
+      await new Promise((resolve, reject) => {
+        server.close(err => (err ? reject(err) : resolve()))
+      })
+      console.log('Guppe server closed')
     })
   })
-  .catch(err => {
-    throw new Error(err)
-  })
-
-onShutdown(async () => {
-  await client.close()
-  await new Promise((resolve, reject) => {
-    server.close(err => (err ? reject(err) : resolve()))
-  })
-  console.log('Guppe server closed')
-})
