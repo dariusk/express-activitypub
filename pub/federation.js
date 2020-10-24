@@ -1,4 +1,5 @@
 'use strict'
+const crypto = require('crypto')
 const request = require('request-promise-native')
 const pubUtils = require('./utils')
 
@@ -24,22 +25,27 @@ function deliver (actor, activity, addresses) {
     delete activity.bcc
   }
   const requests = addresses.map(addr => {
+    const body = pubUtils.toJSONLD(activity)
+    const digest = crypto.createHash('sha256')
+      .update(JSON.stringify(body))
+      .digest('base64')
     return request({
       method: 'POST',
       url: addr,
       headers: {
-        'Content-Type': 'application/activity+json'
+        'Content-Type': 'application/activity+json',
+        Digest: `SHA-256=${digest}`
       },
       httpSignature: {
         key: actor._meta.privateKey,
         keyId: actor.id,
-        headers: ['(request-target)', 'host', 'date'],
+        headers: ['(request-target)', 'host', 'date', 'digest'],
         authorizationHeaderName: 'Signature'
       },
       json: true,
       resolveWithFullResponse: true,
       simple: false,
-      body: pubUtils.toJSONLD(activity)
+      body
     })
       .then(result => console.log('delivery:', addr, result.statusCode))
       .catch(err => console.log(err.message))
