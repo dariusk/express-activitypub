@@ -13,7 +13,12 @@ function requestObject (id) {
   return request({
     url: id,
     headers: { Accept: 'application/activity+json' },
-    json: true
+    httpSignature: {
+      key: global.guppeSystemUser._meta.privateKey,
+      keyId: global.guppeSystemUser.id,
+      headers: ['(request-target)', 'host', 'date'],
+      authorizationHeaderName: 'Signature'
+    }
   })
 }
 

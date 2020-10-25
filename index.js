@@ -72,6 +72,8 @@ client.connect({ useNewUrlParser: true })
     return pub.actor.createLocalActor('dummy', 'Person')
   })
   .then(dummy => {
+    // shortcut to be able to sign GETs, will be factored out via activitypub-express
+    global.guppeSystemUser = dummy
     return store.setup(DOMAIN, dummy)
   })
   .then(() => {
