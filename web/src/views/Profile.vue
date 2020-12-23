@@ -22,12 +22,12 @@
         <p>Couldn't connect with your host.</p>
         <p>You could try going back to your app and entering @{{ groupHandle }} in the search instead</p>
     </div>
-    <div class="w3-container w3-content w3-padding-64">
+    <!-- <div class="w3-container w3-content w3-padding-64">
       <h2 class="w3-wide w3-center">Recent group posts</h2>
       <div>
         <post-card v-for="post of stream" :activity="post" :key="post.id"/>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -116,21 +116,21 @@ export default {
       .then(json => {
         this.actor = json
       })
-      .then(() => {
-        return window.fetch(this.actor.outbox, {
-          method: 'get',
-          mode: 'cors',
-          headers: {
-            accept: 'application/activity+json'
-          }
-        })
-      })
-      .then(res => res.json())
-      .then(outbox => {
-        this.stream = outbox.orderedItems // || fetch page
-          .filter(act => act.type === 'Announce')
-          .slice(0, this.postLimit)
-      })
+      // .then(() => {
+      //   return window.fetch(this.actor.outbox, {
+      //     method: 'get',
+      //     mode: 'cors',
+      //     headers: {
+      //       accept: 'application/activity+json'
+      //     }
+      //   })
+      // })
+      // .then(res => res.json())
+      // .then(outbox => {
+      //   this.stream = outbox.orderedItems // || fetch page
+      //     .filter(act => act.type === 'Announce')
+      //     .slice(0, this.postLimit)
+      // })
       .catch(err => this.error = err.message)
   }
 }

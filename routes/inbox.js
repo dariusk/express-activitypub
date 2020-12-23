@@ -28,7 +28,7 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
         .catch(e => console.log(e))
       break
     case 'Create':
-      toDo.saveObject = true
+      // toDo.saveObject = true
       pub.actor.getOrCreateActor(req.user, true)
         .then(user => {
           const to = [
@@ -40,6 +40,7 @@ router.post('/', net.validators.activity, net.security.verifySignature, function
           return pub.activity.addToOutbox(user, announce)
         }).catch(e => console.log(e))
       break
+    case 'Delete':
     case 'Undo':
       pub.activity.undo(req.body.object, req.body.actor)
         .catch(err => console.log(err.message))
