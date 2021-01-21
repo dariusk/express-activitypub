@@ -4,9 +4,11 @@ const MongoClient = require('mongodb').MongoClient
 const fs = require('fs')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const AutoEncrypt = require('@small-tech/auto-encrypt')
 const https = require('https')
 const morgan = require('morgan')
 const history = require('connect-history-api-fallback')
+const { onShutdown } = require('node-graceful-shutdown')
 
 const routes = require('./routes')
 const pub = require('./pub')
@@ -63,6 +65,10 @@ app.use(function (err, req, res, next) {
   res.status(500).send('An error occurred while processing the request')
 })
 
+const server = process.env.NODE_ENV === 'production'
+  ? AutoEncrypt.https.createServer(app)
+  : https.createServer(sslOptions, app)
+
 client.connect({ useNewUrlParser: true })
   .then(() => {
     console.log('Connected successfully to db')
@@ -77,10 +83,18 @@ client.connect({ useNewUrlParser: true })
     return store.setup(DOMAIN, dummy)
   })
   .then(() => {
-    https.createServer(sslOptions, app).listen(app.get('port-https'), function () {
-      console.log('Express server listening on port ' + app.get('port-https'))
+    server.listen(app.get('port-https'), function () {
+      console.log('Guppe server listening on port ' + app.get('port-https'))
     })
   })
   .catch(err => {
     throw new Error(err)
   })
+
+onShutdown(async () => {
+  await client.close()
+  await new Promise((resolve, reject) => {
+    server.close(err => (err ? reject(err) : resolve()))
+  })
+  console.log('Guppe server closed')
+})
