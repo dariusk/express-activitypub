@@ -9,6 +9,7 @@ router.get('/', net.validators.jsonld, function (req, res) {
   const db = req.app.get('db')
   db.collection('streams')
     .aggregate([
+      { $sort: { _id: -1 } }, // start from most recent
       { $limit: 10000 }, // don't traverse the entire history
       { $match: { type: 'Announce' } },
       { $group: { _id: '$actor', postCount: { $sum: 1 } } },
@@ -18,7 +19,7 @@ router.get('/', net.validators.jsonld, function (req, res) {
       { $project: { _id: 0, _meta: 0, actor: 0 } }
     ])
     .sort({ postCount: -1 })
-    .limit(Number.parseInt(req.query.n) || 20)
+    .limit(Number.parseInt(req.query.n) || 50)
     .toArray()
     .then(groups => { console.log(JSON.stringify(groups)); return groups })
     .then(groups => res.json(groups))

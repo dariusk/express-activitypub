@@ -4,6 +4,7 @@
   "description": "Decentralized social groups with ActivityPub, NodeJS, Express, Vue, and Mongodb",
   "main": "index.js",
   "dependencies": {
+    "@small-tech/auto-encrypt": "2.0.5",
     "body-parser": "^1.18.3",
     "connect-history-api-fallback": "^1.6.0",
     "cors": "^2.8.4",
@@ -12,6 +13,7 @@
     "http-signature": "github:wmurphyrd/node-http-signature#9c02eeb",
     "mongodb": "^3.3.2",
     "morgan": "^1.9.1",
+    "node-graceful-shutdown": "1.1.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7"
   },
