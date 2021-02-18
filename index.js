@@ -66,7 +66,7 @@ app.use(function (err, req, res, next) {
 })
 
 const server = process.env.NODE_ENV === 'production'
-  ? AutoEncrypt.https.createServer(app)
+  ? AutoEncrypt.https.createServer({ domains: ['gup.pe'] }, app)
   : https.createServer(sslOptions, app)
 
 client.connect({ useNewUrlParser: true })
