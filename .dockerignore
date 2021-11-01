@@ -1,0 +1,7 @@
+node_modules
+web/node_modules
+npm-debug.log
+certs
+.vscode
+web/dist
+.env

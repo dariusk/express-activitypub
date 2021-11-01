@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  guppe:
+    build: .
+    restart: unless-stopped
+    ports:
+      - 443:443
+      - 80:80
+    env_file: '.env'
+    environment:
+      DB_URL: 'mongodb://mongodb:27017'
+      PORT_HTTPS: 443
+    depends_on:
+      - mongodb
+    volumes:
+      - certs:/root/.small-tech.org/auto-encrypt
+      # localdev certs
+      - ./certs:/usr/src/guppe/certs
+    logging:
+      driver: local
+      options:
+        max-size: '10m'
+    
+  mongodb:
+    image: mongo:4.2
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    logging:
+      driver: local
+      options:
+        max-size: '10m'
+
+volumes:
+  mongo-data:
+  certs:

@@ -1,3 +1,4 @@
+require('dotenv').config()
 const path = require('path')
 const express = require('express')
 const MongoClient = require('mongodb').MongoClient
@@ -8,7 +9,7 @@ const history = require('connect-history-api-fallback')
 const { onShutdown } = require('node-graceful-shutdown')
 const ActivitypubExpress = require('activitypub-express')
 
-const { DOMAIN, KEY_PATH, CERT_PATH, CA_PATH, PORT, PORT_HTTPS, DB_URL, DB_NAME } = require('./config.json')
+const { DOMAIN, KEY_PATH, CERT_PATH, CA_PATH, PORT_HTTPS, DB_URL, DB_NAME } = process.env
 
 const app = express()
 
@@ -50,9 +51,6 @@ const apex = ActivitypubExpress({
   routes
 })
 
-app.set('domain', DOMAIN)
-app.set('port', process.env.PORT || PORT)
-app.set('port-https', process.env.PORT_HTTPS || PORT_HTTPS)
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status Accepts ":req[accept]" ":referrer" ":user-agent"'))
 app.use(express.json({ type: apex.consts.jsonldTypes }), apex)
 
