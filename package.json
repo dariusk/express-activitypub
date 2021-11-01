@@ -19,7 +19,7 @@
     "request-promise-native": "^1.0.7"
   },
   "engines": {
-    "node": ">=10.10.0"
+    "node": ">=16"
   },
   "devDependencies": {
     "chokidar": "^3.1.1",
