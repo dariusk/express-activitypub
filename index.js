@@ -54,48 +54,37 @@ const apex = ActivitypubExpress({
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status Accepts ":req[accept]" ":referrer" ":user-agent"'))
 app.use(express.json({ type: apex.consts.jsonldTypes }), apex)
 
-// Guppe's magic: create new groups on demand whenever someone tries to access it
-async function getOrCreateActor (req, res, next) {
-  const apex = req.app.locals.apex
-  const actor = req.params[apex.actorParam]
-  const actorIRI = apex.utils.usernameToIRI(actor)
-  let actorObj
-  try {
-    actorObj = await apex.store.getObject(actorIRI)
-  } catch (err) { return next(err) }
-  if (!actorObj && actor.length <= 100) {
-    try {
-      const summary = `I'm a group about ${actor}. Follow me to get all the group posts. Tag me to share with the group. Create other groups by searching for or tagging @yourGroupName@${DOMAIN}`
-      actorObj = await apex.createActor(actor, `${actor} group`, summary, icon, 'Group')
-      await apex.store.saveObject(actorObj)
-    } catch (err) { return next(err) }
-    res.locals.apex.target = actorObj
-  } else if (actor.length > 100) {
-    res.locals.apex.status = 400
-    res.locals.apex.statusMessage = 'Group names are limited to 100 characters'
-  } else if (actorObj.type === 'Tombstone') {
-    res.locals.apex.status = 410
-  } else {
-    res.locals.apex.target = actorObj
+// Create new groups on demand whenever someone tries to access one
+async function actorOnDemand (req, res, next) {
+  const actor = req.params.actor
+  if (!actor) {
+    return next()
   }
+  const actorIRI = apex.utils.usernameToIRI(actor)
+  try {
+    if (!(await apex.store.getObject(actorIRI)) && actor.length <= 255) {
+      console.log(`Creating group: ${actor}`)
+      const summary = `I'm a group about ${actor}. Follow me to get all the group posts. Tag me to share with the group. Create other groups by searching for or tagging @yourGroupName@${DOMAIN}`
+      const actorObj = await apex.createActor(actor, `${actor} group`, summary, icon, 'Group')
+      await apex.store.saveObject(actorObj)
+    }
+  } catch (err) { return next(err) }
   next()
 }
-
 // define routes using prepacakged middleware collections
 app.route(routes.inbox)
-  .post(apex.net.inbox.post)
-  // no C2S at present
-  // .get(apex.net.inbox.get)
+  .post(actorOnDemand, apex.net.inbox.post)
+  .get(actorOnDemand, apex.net.inbox.get)
 app.route(routes.outbox)
-  .get(apex.net.outbox.get)
+  .get(actorOnDemand, apex.net.outbox.get)
   // no C2S at present
   // .post(apex.net.outbox.post)
 
 // replace apex's target actor validator with our create on demand method
-app.get(routes.actor, apex.net.validators.jsonld, getOrCreateActor, apex.net.responders.target)
-app.get(routes.followers, apex.net.followers.get)
-app.get(routes.following, apex.net.following.get)
-app.get(routes.liked, apex.net.liked.get)
+app.get(routes.actor, actorOnDemand, apex.net.actor.get)
+app.get(routes.followers, actorOnDemand, apex.net.followers.get)
+app.get(routes.following, actorOnDemand, apex.net.following.get)
+app.get(routes.liked, actorOnDemand, apex.net.liked.get)
 app.get(routes.object, apex.net.object.get)
 app.get(routes.activity, apex.net.activityStream.get)
 app.get(routes.shares, apex.net.shares.get)
@@ -104,8 +93,8 @@ app.get(routes.likes, apex.net.likes.get)
 app.get(
   '/.well-known/webfinger',
   apex.net.wellKnown.parseWebfinger,
-  // replace apex's target actor validator with our create on demand method
-  getOrCreateActor,
+  actorOnDemand,
+  apex.net.validators.targetActor,
   apex.net.wellKnown.respondWebfinger
 )
 
