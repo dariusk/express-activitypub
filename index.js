@@ -98,7 +98,7 @@ app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
   switch (activity.type.toLowerCase()) {
     // automatically reshare incoming posts
     case 'create': {
-      if (!activity.to?.includes(recipient.id)) {
+      if (!apex.audienceFromActivity(activity).includes(recipient.id)) {
         // ignore forwarded messages that aren't directly adddressed to group
         return
       }
