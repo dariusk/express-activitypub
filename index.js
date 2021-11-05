@@ -12,15 +12,12 @@ const ActivitypubExpress = require('activitypub-express')
 const { DOMAIN, KEY_PATH, CERT_PATH, CA_PATH, PORT_HTTPS, DB_URL, DB_NAME } = process.env
 
 const app = express()
-
 const client = new MongoClient(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true })
-
 const sslOptions = {
   key: KEY_PATH && fs.readFileSync(path.join(__dirname, KEY_PATH)),
   cert: CERT_PATH && fs.readFileSync(path.join(__dirname, CERT_PATH)),
   ca: CA_PATH && fs.readFileSync(path.join(__dirname, CA_PATH))
 }
-
 const icon = {
   type: 'Image',
   mediaType: 'image/jpeg',
@@ -89,7 +86,6 @@ app.get(routes.object, apex.net.object.get)
 app.get(routes.activity, apex.net.activityStream.get)
 app.get(routes.shares, apex.net.shares.get)
 app.get(routes.likes, apex.net.likes.get)
-
 app.get(
   '/.well-known/webfinger',
   apex.net.wellKnown.parseWebfinger,
@@ -100,9 +96,10 @@ app.get(
 
 app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
   switch (activity.type.toLowerCase()) {
+    // automatically reshare incoming posts
     case 'create': {
-      // ignore forwarded messages that aren't directly adddressed to group
       if (!activity.to?.includes(recipient.id)) {
+        // ignore forwarded messages that aren't directly adddressed to group
         return
       }
       const to = [
@@ -115,6 +112,7 @@ app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
       apex.addToOutbox(recipient, share)
       break
     }
+    // automatically accept follow requests
     case 'follow': {
       const accept = await apex.buildActivity('Accept', recipient.id, actor.id, {
         object: activity.id
@@ -137,6 +135,35 @@ app.use(history({
 }))
 app.use('/f', express.static('public/files'))
 app.use('/web', express.static('web/dist'))
+// web json routes
+app.get('/groups', (req, res, next) => {
+  apex.store.db.collection('streams')
+    .aggregate([
+      { $sort: { _id: -1 } }, // start from most recent
+      { $limit: 10000 }, // don't traverse the entire history
+      { $match: { type: 'Announce' } },
+      { $group: { _id: '$actor', postCount: { $sum: 1 } } },
+      { $lookup: { from: 'objects', localField: '_id', foreignField: 'id', as: 'actor' } },
+      // merge joined actor up
+      { $replaceRoot: { newRoot: { $mergeObjects: [{ $arrayElemAt: ['$actor', 0] }, '$$ROOT'] } } },
+      { $project: { _id: 0, _meta: 0, actor: 0 } }
+    ])
+    .sort({ postCount: -1 })
+    .limit(Number.parseInt(req.query.n) || 50)
+    .toArray()
+    .then(groups => apex.toJSONLD({
+      id: `https://${DOMAIN}/groups`,
+      type: 'OrderedCollection',
+      totalItems: groups.length,
+      orderedItems: groups
+    }))
+    // .then(groups => { console.log(JSON.stringify(groups)); return groups })
+    .then(groups => res.json(groups))
+    .catch(err => {
+      console.log(err.message)
+      return res.status(500).send()
+    })
+})
 
 app.use(function (err, req, res, next) {
   console.error(err.message, req.body, err.stack)

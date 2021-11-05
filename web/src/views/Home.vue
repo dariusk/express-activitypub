@@ -47,14 +47,14 @@ export default {
     }
   },
   created () {
-    window.fetch(`/u/`, {
+    window.fetch(`/groups`, {
       method: 'get',
       headers: {
         accept: 'application/json'
       }
     }).then(res => res.json())
       .then(json => {
-        this.groups = json
+        this.groups = json.orderedItems
       })
       .catch(err => this.error = err.message)
   }

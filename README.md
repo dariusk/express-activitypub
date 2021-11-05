@@ -10,7 +10,7 @@ Creation of new groups is automatic, users simply search for or mention a new gr
 
 Mostly powered by [activitypub-express](https://github.com/immers-space/activitypub-express)
 from [Immers Space](https://web.immers.space).
-The gup.pe server app, `index.js` is < 200 lines of code,
+The gup.pe server app, `index.js` is  200 lines of code,
 just adding the auto-create actor, auto-accept follow, and auto-boost from inbox behaviors
 to the base apex setup.
 
