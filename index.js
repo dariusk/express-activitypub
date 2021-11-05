@@ -98,8 +98,9 @@ app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
   switch (activity.type.toLowerCase()) {
     // automatically reshare incoming posts
     case 'create': {
-      if (!apex.audienceFromActivity(activity).includes(recipient.id)) {
-        // ignore forwarded messages that aren't directly adddressed to group
+      // check audience to ignore forwarded messages not adddressed to group
+      const audience = apex.audienceFromActivity(activity)
+      if (!audience.includes(recipient.id) || !activity.object?.length) {
         return
       }
       const to = [
@@ -107,7 +108,7 @@ app.on('apex-inbox', async ({ actor, activity, recipient, object }) => {
         apex.consts.publicAddress
       ]
       const share = await apex.buildActivity('Announce', recipient.id, to, {
-        object: activity.id
+        object: activity.object[0].id
       })
       apex.addToOutbox(recipient, share)
       break
