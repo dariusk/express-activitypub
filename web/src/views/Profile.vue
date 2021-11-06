@@ -1,6 +1,6 @@
 <template>
   <div class="w3-container w3-content w3-center w3-padding-32">
-    <profile-summary :actor="actor"/>
+    <profile-summary v-if="actor.id" :actor="actor"/>
     <p class="w3-left-align">To join {{ actor.preferredUsername }}, enter your handle below and you'll be
       redirected back to this group's profile in your app where you can follow it.</p>
     <form class="w3-container">

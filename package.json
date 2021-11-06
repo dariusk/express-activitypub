@@ -4,10 +4,11 @@
   "description": "Decentralized social groups with ActivityPub, NodeJS, Express, Vue, and Mongodb",
   "main": "index.js",
   "dependencies": {
-    "@small-tech/auto-encrypt": "2.0.5",
-    "body-parser": "^1.18.3",
+    "@small-tech/auto-encrypt": "^3.0.1",
+    "activitypub-express": "^2.2.1",
     "connect-history-api-fallback": "^1.6.0",
     "cors": "^2.8.4",
+    "dotenv": "^10.0.0",
     "express": "^4.16.3",
     "express-basic-auth": "^1.1.5",
     "http-signature": "github:wmurphyrd/node-http-signature#9c02eeb",
@@ -18,12 +19,12 @@
     "request-promise-native": "^1.0.7"
   },
   "engines": {
-    "node": ">=10.10.0"
+    "node": ">=16"
   },
   "devDependencies": {
     "chokidar": "^3.1.1",
     "nodemon": "^1.19.3",
-    "standard": "^14.3.1",
+    "standard": "^16.0.4",
     "standardjs": "^1.0.0-alpha"
   },
   "scripts": {
