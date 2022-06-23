@@ -110,7 +110,7 @@ function sendCreateMessage(text, name, domain, req, res) {
     for (let follower of followers) {
       let inbox = follower+'/inbox';
       let myURL = new URL(follower);
-      let targetDomain = myURL.hostname;
+      let targetDomain = myURL.host;
       let message = createMessage(text, name, domain, req, res, follower);
       signAndSend(message, name, domain, req, res, targetDomain, inbox);
     }
