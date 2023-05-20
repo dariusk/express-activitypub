@@ -14,6 +14,7 @@ function createActor(name, domain, pubkey) {
     'type': 'Person',
     'preferredUsername': `${name}`,
     'inbox': `https://${domain}/api/inbox`,
+    'outbox': `https://${domain}/u/${name}/outbox`,
     'followers': `https://${domain}/u/${name}/followers`,
 
     'publicKey': {
