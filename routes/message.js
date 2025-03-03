@@ -14,6 +14,7 @@ router.get('/:guid', function (req, res) {
       return res.status(404).send(`No record found for ${guid}.`);
     }
     else {
+      res.set('Content-Type', 'application/activity+json');
       res.json(JSON.parse(result.message));
     }
   }
