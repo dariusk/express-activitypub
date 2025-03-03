@@ -23,6 +23,7 @@ router.get('/:name', function (req, res) {
       if (tempActor.followers === undefined) {
         tempActor.followers = `https://${domain}/u/${username}/followers`;
       }
+      res.set('Content-Type', 'application/activity+json');
       res.json(tempActor);
     }
   }
@@ -53,6 +54,7 @@ router.get('/:name/followers', function (req, res) {
       },
       "@context":["https://www.w3.org/ns/activitystreams"]
     };
+    res.set('Content-Type', 'application/activity+json');
     res.json(followersCollection);
   }
 });
@@ -78,6 +80,7 @@ router.get('/:name/outbox', function (req, res) {
       },
       "@context":["https://www.w3.org/ns/activitystreams"]
     };
+    res.set('Content-Type', 'application/activity+json');
     res.json(outboxCollection);
   }
 });
